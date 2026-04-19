@@ -168,9 +168,9 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="1.5" width="6" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M8 9.5V14M5.5 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="5" r=".8" fill="currentColor"/><circle cx="9" cy="7" r=".8" fill="currentColor"/></svg>
       USB / SD
     </button>
-    <button class="src" id="src-recent" onclick="activateSource(this,'recent')">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Recientes
+    <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Catálogo ✦
     </button>
   </div>
 
@@ -245,6 +245,30 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     Abrir carpeta o unidad extraíble…
   </button>
 
+  <!-- CATALOG PANEL — hidden until Pro activated -->
+  <div id="catalogPanel" style="display:none;flex-direction:column;gap:10px;">
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab active" id="ctab-search" onclick="switchCatalogTab('search')">Buscar</button>
+        <button class="tab" id="ctab-genres" onclick="switchCatalogTab('genres')">Géneros</button>
+        <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Novedades</button>
+      </div>
+      <div style="padding:10px 14px;display:flex;gap:6px;" id="catalogSearchRow">
+        <input type="text" id="catalogSearch" placeholder="Buscar artista o canción…"
+          style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
+          onkeydown="if(event.key==='Enter')searchJamendo()">
+        <button onclick="searchJamendo()"
+          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Buscar</button>
+      </div>
+      <div style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;" id="genreBar" style="display:none;">
+        <!-- genres injected by JS -->
+      </div>
+      <div class="panel-body" id="catalogBody" style="max-height:280px;">
+        <div class="empty-state"><strong>Catálogo Jamendo</strong>Más de 500,000 tracks con licencia libre. Busca o elige un género.</div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- TOAST -->
@@ -257,15 +281,24 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <div style="font-size:22px;margin-bottom:4px;">✦</div>
     <h2>Music Brumm Pro</h2>
     <div style="font-size:12px;color:var(--text2);">Un pago al año. Sin suscripción mensual.</div>
-    <div class="price">$3.99 <span>/ año</span></div>
+    <div class="price">$25 <span>/ año</span></div>
     <ul>
-      <li>Sin anuncios</li>
-      <li>Ecualizador de 10 bandas + presets personalizados</li>
-      <li>Soporte NAS y carpetas de red</li>
-      <li>Historial extendido y listas de reproducción</li>
-      <li>Scrobbling Last.fm</li>
+      <li>Catálogo completo Jamendo — +500,000 tracks libres</li>
+      <li>Búsqueda por artista, canción y género</li>
+      <li>Novedades y selecciones editoriales</li>
+      <li>Playlists guardadas</li>
+      <li>Ecualizador avanzado con presets personalizados</li>
     </ul>
-    <button class="modal-cta" onclick="window.open('https://brumm.lemonsqueezy.com/buy/brumm-pro','_blank')"; toast('Abriendo pago…')">Activar Pro →</button>
+    <button class="modal-cta" onclick="window.open('https://brumm.lemonsqueezy.com/buy/brumm-pro','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año →</button>
+    <div style="margin-top:12px;text-align:center;">
+      <span style="font-size:11px;color:var(--text3);">¿Ya tienes una licencia? </span>
+      <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Ingresar clave →</button>
+    </div>
+    <div id="licenseInputWrap" style="display:none;margin-top:10px;gap:6px;">
+      <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX"
+        style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--mono);outline:none;width:100%;margin-bottom:6px;">
+      <button onclick="activateLicense()" style="width:100%;padding:8px 12px;background:var(--pro);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font);">Activar licencia</button>
+    </div>
   </div>
 </div>
 
@@ -738,6 +771,189 @@ document.getElementById('manifestLink').href = URL.createObjectURL(blob);
 buildEQUI();
 drawArt(0);
 renderPanel();
+checkProStatus();
+
+// ── PRO / LICENSE ─────────────────────────────────────────
+const JAMENDO_ID = 'a1eb6b2d'; // IndPlaneta's App — developer.jamendo.com
+let isPro = false;
+
+function checkProStatus() {
+  try {
+    const k = localStorage.getItem('brumm_pro_key');
+    if (k && k.length > 8) { isPro = true; applyProUI(); }
+  } catch(e) {}
+}
+
+function applyProUI() {
+  isPro = true;
+  document.getElementById('proBtn').textContent = '✦ Pro activo';
+  document.getElementById('proBtn').style.background = '#16a34a';
+  document.getElementById('src-catalog').style.fontWeight = '500';
+}
+
+function showLicenseInput() {
+  const w = document.getElementById('licenseInputWrap');
+  w.style.display = w.style.display === 'none' ? 'flex' : 'none';
+  w.style.flexDirection = 'column';
+}
+
+function activateLicense() {
+  const key = document.getElementById('licenseKey').value.trim();
+  if (key.length < 8) { toast('Clave inválida'); return; }
+  // En producción: validar contra Lemon Squeezy API
+  // Por ahora guardamos localmente y activamos
+  try { localStorage.setItem('brumm_pro_key', key); } catch(e) {}
+  applyProUI();
+  document.getElementById('modalBg').classList.remove('show');
+  toast('¡Pro activado! Bienvenido.');
+  // Show catalog source
+}
+
+// ── JAMENDO CATALOG ───────────────────────────────────────
+const JAMENDO = 'https://api.jamendo.com/v3.0';
+const GENRES = ['lounge','classical','electronic','jazz','pop','rock','hiphop','relaxation','songwriter','world','metal','soundtrack'];
+let catalogTab = 'search';
+let jamendoResults = [];
+let catalogSource = null; // 'jamendo' when streaming from catalog
+
+function activateSource(btn, src) {
+  document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (src === 'folder' || src === 'usb') {
+    document.getElementById('catalogPanel').style.display = 'none';
+    openFolder();
+  } else if (src === 'catalog') {
+    if (!isPro) {
+      document.getElementById('modalBg').classList.add('show');
+      document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
+      document.getElementById('src-folder').classList.add('active');
+      return;
+    }
+    document.getElementById('catalogPanel').style.display = 'flex';
+    loadGenreBar();
+    loadJamendoNew();
+  }
+}
+
+function switchCatalogTab(tab) {
+  catalogTab = tab;
+  document.querySelectorAll('[id^="ctab-"]').forEach(t => t.classList.remove('active'));
+  document.getElementById('ctab-'+tab).classList.add('active');
+  const searchRow = document.getElementById('catalogSearchRow');
+  const genreBar = document.getElementById('genreBar');
+  if (tab === 'search') { searchRow.style.display='flex'; genreBar.style.display='none'; searchJamendo(''); }
+  else if (tab === 'genres') { searchRow.style.display='none'; genreBar.style.display='flex'; loadGenreBar(); }
+  else if (tab === 'new') { searchRow.style.display='none'; genreBar.style.display='none'; loadJamendoNew(); }
+}
+
+function loadGenreBar() {
+  const bar = document.getElementById('genreBar');
+  bar.style.display = 'flex';
+  bar.innerHTML = GENRES.map(g =>
+    `<button onclick="searchByGenre('${g}')"
+      style="padding:4px 10px;border:1px solid var(--border);border-radius:20px;font-size:11px;background:var(--surface);cursor:pointer;font-family:var(--font);color:var(--text2);text-transform:capitalize;">
+      ${g}</button>`
+  ).join('');
+}
+
+function searchByGenre(genre) {
+  document.getElementById('catalogSearch').value = genre;
+  searchJamendo(genre, true);
+}
+
+async function loadJamendoNew() {
+  setCatalogLoading();
+  try {
+    const url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=30&order=releasedate_desc&include=musicinfo&imagesize=100`;
+    const data = await (await fetch(url)).json();
+    jamendoResults = data.results || [];
+    renderCatalog();
+  } catch(e) { setCatalogError(); }
+}
+
+async function searchJamendo(query, isGenre) {
+  const q = query !== undefined ? query : document.getElementById('catalogSearch').value.trim();
+  setCatalogLoading();
+  try {
+    let url;
+    if (isGenre) {
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&tags=${encodeURIComponent(q)}&featured=1&groupby=artist_id&include=musicinfo&imagesize=100`;
+    } else if (q) {
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&search=${encodeURIComponent(q)}&include=musicinfo&imagesize=100`;
+    } else {
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&order=popularity_total&featured=1&include=musicinfo&imagesize=100`;
+    }
+    const data = await (await fetch(url)).json();
+    jamendoResults = data.results || [];
+    renderCatalog();
+  } catch(e) { setCatalogError(); }
+}
+
+function setCatalogLoading() {
+  document.getElementById('catalogBody').innerHTML =
+    '<div class="empty-state"><strong>Buscando…</strong>Consultando catálogo Jamendo</div>';
+}
+
+function setCatalogError() {
+  document.getElementById('catalogBody').innerHTML =
+    '<div class="empty-state"><strong>Error de conexión</strong>Verifica tu internet e intenta de nuevo</div>';
+}
+
+function renderCatalog() {
+  const body = document.getElementById('catalogBody');
+  if (!jamendoResults.length) {
+    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Prueba con otro término o género</div>';
+    return;
+  }
+  body.innerHTML = jamendoResults.map((t,i) => `
+    <div class="track-row" onclick="playJamendoTrack(${i})">
+      <div class="tr-n">${i+1}</div>
+      ${t.image ? `<img src="${t.image}" width="32" height="32" style="border-radius:5px;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+      <div class="tr-info">
+        <div class="tr-title">${esc(t.name)}</div>
+        <div class="tr-sub">${esc(t.artist_name)}</div>
+      </div>
+      <div class="tr-dur">${fmtTime(t.duration)}</div>
+    </div>`).join('');
+}
+
+async function playJamendoTrack(idx) {
+  if (AC.state === 'suspended') AC.resume();
+  const t = jamendoResults[idx];
+  if (!t || !t.audio) { toast('Track sin URL de stream'); return; }
+  if (isPlaying) pausePlayback();
+  pausedAt = 0;
+  catalogSource = t;
+  document.getElementById('npTitle').textContent = t.name;
+  document.getElementById('npArtist').textContent = t.artist_name + ' · Jamendo';
+  document.getElementById('npFormat').textContent = 'MP3 · Jamendo CC';
+  document.getElementById('timeDur').textContent = fmtTime(t.duration);
+  document.getElementById('playBtn').classList.add('loading');
+  document.getElementById('playBtn').textContent = '…';
+  drawArt(idx);
+  // Update artwork with Jamendo image if available
+  if (t.image) {
+    const img = new Image(); img.crossOrigin='anonymous';
+    img.onload = () => {
+      const c = document.getElementById('artCanvas');
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0, 68, 68);
+    };
+    img.src = t.image;
+  }
+  toast(`Cargando: ${t.name}`);
+  try {
+    const resp = await fetch(t.audio);
+    const ab = await resp.arrayBuffer();
+    audioBuffer = await AC.decodeAudioData(ab);
+    document.getElementById('playBtn').classList.remove('loading');
+    playFrom(0);
+  } catch(e) {
+    toast('No se pudo cargar este track');
+    document.getElementById('playBtn').classList.remove('loading');
+    document.getElementById('playBtn').textContent = '▶';
+  }
+}
 </script>
 </body>
 </html>
