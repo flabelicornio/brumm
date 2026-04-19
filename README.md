@@ -1,4 +1,4 @@
-# Wavely — Music Player
+# Brumm — Music Player
 
 PWA de audio para ChromeOS. Un archivo HTML, sin dependencias externas.
 
