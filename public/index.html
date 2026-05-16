@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#F7F7F5">
-<title>Music Brumm <p title="Runs locally no data recollected">Tech Corp | IndPlaneta</p></title>
-<link rel="manifest" href="#" id="manifestLink">
+<title>Music Brumm</title>
+<link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
@@ -758,14 +758,15 @@ function fmtTime(s) {
 }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ── PWA MANIFEST (inline) ─────────────────────────────────
-const manifest = {
-  name:"Music Brumm", short_name:"Brumm", start_url:".", display:"standalone",
-  background_color:"#F7F7F5", theme_color:"#F7F7F5",
-  icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231A1A18'/><text y='.9em' font-size='80' x='10'>🎵</text></svg>",sizes:"any",type:"image/svg+xml"}]
-};
-const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
-document.getElementById('manifestLink').href = URL.createObjectURL(blob);
+// PWA: manifest.json + sw.js externos
+
+// ── SERVICE WORKER ────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .catch(e => console.warn('SW:', e));
+  });
+}
 
 // ── INIT ──────────────────────────────────────────────────
 buildEQUI();
