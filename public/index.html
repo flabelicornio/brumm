@@ -526,6 +526,7 @@ async function parseFiles(files) {
 async function loadTrack(idx) {
   if (!library.length) return;
   if (isPlaying) pausePlayback();
+  catalogSource = null; // salimos del modo Jamendo
   curIdx = idx;
   pausedAt = 0;
   const t = library[queue[curIdx]];
@@ -570,6 +571,12 @@ function togglePlay() {
 }
 
 function prevTrack() {
+  if (catalogSource !== null) {
+    const elapsed = isPlaying ? AC.currentTime - startedAt : pausedAt;
+    if (elapsed > 3) { pausePlayback(); pausedAt=0; playFrom(0); return; }
+    playJamendoTrack(Math.max(0, curJamendoIdx - 1));
+    return;
+  }
   if (!library.length) return;
   const elapsed = isPlaying ? AC.currentTime - startedAt : pausedAt;
   if (elapsed > 3) { pausePlayback(); pausedAt=0; playFrom(0); return; }
@@ -578,6 +585,14 @@ function prevTrack() {
 }
 
 function nextTrack() {
+  if (catalogSource !== null) {
+    if (repeatMode === 2) { pausePlayback(); pausedAt=0; playFrom(0); return; }
+    const newIdx = shuffle
+      ? Math.floor(Math.random() * jamendoResults.length)
+      : (curJamendoIdx + 1) % jamendoResults.length;
+    playJamendoTrack(newIdx);
+    return;
+  }
   if (!library.length) return;
   if (repeatMode === 2) { pausePlayback(); pausedAt=0; playFrom(0); return; }
   if (shuffle) curIdx = Math.floor(Math.random()*queue.length);
@@ -989,7 +1004,8 @@ const JAMENDO = 'https://api.jamendo.com/v3.0';
 const GENRES = ['lounge','classical','electronic','jazz','pop','rock','hiphop','relaxation','songwriter','world','metal','soundtrack'];
 let catalogTab = 'search';
 let jamendoResults = [];
-let catalogSource = null; // 'jamendo' when streaming from catalog
+let catalogSource = null;
+let curJamendoIdx = 0;
 
 function activateSource(btn, src) {
   document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
@@ -1080,16 +1096,25 @@ function renderCatalog() {
     body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Prueba con otro término o género</div>';
     return;
   }
-  body.innerHTML = jamendoResults.map((t,i) => `
-    <div class="track-row" onclick="playJamendoTrack(${i})">
-      <div class="tr-n">${i+1}</div>
+  const playAllBtn = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);">
+    <button onclick="playJamendoTrack(0)"
+      style="width:100%;padding:8px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);">
+      ▶ Reproducir todo (${jamendoResults.length} pistas)
+    </button>
+  </div>`;
+  body.innerHTML = playAllBtn + jamendoResults.map((t,i) => `
+    <div class="track-row${catalogSource && curJamendoIdx===i?' active':''}" onclick="playJamendoTrack(${i})">
+      <div class="tr-n${catalogSource && curJamendoIdx===i?' playing':''}">${catalogSource && curJamendoIdx===i?'♪':i+1}</div>
       ${t.image ? `<img src="${t.image}" width="32" height="32" style="border-radius:5px;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none'">` : ''}
       <div class="tr-info">
-        <div class="tr-title">${esc(t.name)}</div>
+        <div class="tr-title${catalogSource && curJamendoIdx===i?' playing':''}">${esc(t.name)}</div>
         <div class="tr-sub">${esc(t.artist_name)}</div>
       </div>
       <div class="tr-dur">${fmtTime(t.duration)}</div>
     </div>`).join('');
+  // scroll active into view
+  const activeEl = body.querySelector('.track-row.active');
+  if (activeEl) activeEl.scrollIntoView({block:'nearest'});
 }
 
 async function playJamendoTrack(idx) {
@@ -1099,6 +1124,7 @@ async function playJamendoTrack(idx) {
   if (isPlaying) pausePlayback();
   pausedAt = 0;
   catalogSource = t;
+  curJamendoIdx = idx;
   document.getElementById('npTitle').textContent = t.name;
   document.getElementById('npArtist').textContent = t.artist_name + ' · Jamendo';
   document.getElementById('npFormat').textContent = 'MP3 · Jamendo CC';
@@ -1106,7 +1132,6 @@ async function playJamendoTrack(idx) {
   document.getElementById('playBtn').classList.add('loading');
   document.getElementById('playBtn').textContent = '…';
   drawArt(idx);
-  // Update artwork with Jamendo image if available
   if (t.image) {
     const img = new Image(); img.crossOrigin='anonymous';
     img.onload = () => {
@@ -1116,6 +1141,7 @@ async function playJamendoTrack(idx) {
     };
     img.src = t.image;
   }
+  renderCatalog(); // highlight active row
   toast(`Cargando: ${t.name}`);
   try {
     const resp = await fetch(t.audio);
