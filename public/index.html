@@ -142,18 +142,38 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .modal ul li::before{content:'✓';color:var(--pro);font-weight:500;font-size:12px;}
 .modal-cta{width:100%;padding:12px;background:var(--pro);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font);}
 
-/* ── WAVEFORM VISUALIZER ── */
-.viz-wrap{height:32px;margin:8px 0 4px;border-radius:6px;overflow:hidden;}
-#vizCanvas{display:block;width:100%;height:32px;}
+/* ── SETTINGS MODAL ── */
+.settings-modal{background:var(--surface);border-radius:16px;padding:24px;width:90%;max-width:380px;position:relative;max-height:85vh;overflow-y:auto;}
+.settings-section{margin-bottom:20px;}
+.settings-label{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-label{font-size:13px;color:var(--text);}
+.settings-row-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.toggle-sw{width:36px;height:20px;background:var(--border2);border-radius:10px;border:none;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0;}
+.toggle-sw.on{background:var(--text);}
+.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .15s;}
+.toggle-sw.on::after{transform:translateX(16px);}
+
+/* ── EDITABLE TRACK ROW ── */
+.track-row .tr-del{width:22px;height:22px;border:none;background:none;cursor:pointer;color:var(--text3);font-size:14px;flex-shrink:0;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .1s;opacity:0;}
+.track-row:hover .tr-del{opacity:1;}
+.track-row .tr-del:hover{background:#FFE8E8;color:#CC3333;}
+.track-row .tr-drag{width:16px;color:var(--text3);font-size:12px;cursor:grab;flex-shrink:0;opacity:0;text-align:center;}
+.track-row:hover .tr-drag{opacity:1;}
+.track-row.drag-over{border-top:2px solid var(--text);}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="logo">Music <span style="font-weight:300">Brumm</span></div>
+  <div class="logo">
+    <img src="/icon-192.svg" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px;">
+    Music <span style="font-weight:300">Brumm</span>
+  </div>
   <div class="topbar-right">
     <button class="pro-chip" id="proBtn">✦ Pro</button>
-    <button class="settings-btn" title="Ajustes">⚙</button>
+    <button class="settings-btn" id="settingsBtn" onclick="document.getElementById('settingsBg').classList.add('show')" title="Ajustes">⚙</button>
   </div>
 </div>
 
@@ -274,6 +294,68 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsBg" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="settings-modal">
+    <button class="modal-close" onclick="document.getElementById('settingsBg').classList.remove('show')">✕</button>
+    <h2 style="font-size:17px;font-weight:500;margin-bottom:18px;">Ajustes</h2>
+
+    <div class="settings-section">
+      <div class="settings-label">Reproducción</div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Continuar al abrir</div><div class="settings-row-sub">Retoma la última pista al iniciar</div></div>
+        <button class="toggle-sw on" id="sw-resume" onclick="toggleSetting(this,'resume')"></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Crossfade</div><div class="settings-row-sub">Mezcla suave entre pistas (2s)</div></div>
+        <button class="toggle-sw" id="sw-crossfade" onclick="toggleSetting(this,'crossfade')"></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Normalizar volumen</div><div class="settings-row-sub">Iguala niveles entre archivos</div></div>
+        <button class="toggle-sw" id="sw-normalize" onclick="toggleSetting(this,'normalize')"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Interfaz</div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Modo oscuro</div><div class="settings-row-sub">Cambia al tema oscuro</div></div>
+        <button class="toggle-sw" id="sw-dark" onclick="toggleDarkMode(this)"></button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Visualizador</div><div class="settings-row-sub">Barras de frecuencia en el player</div></div>
+        <button class="toggle-sw on" id="sw-viz" onclick="toggleSetting(this,'viz')"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Licencia</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label" id="settingsProStatus">Free</div>
+          <div class="settings-row-sub">Music Brumm Pro — $25/año</div>
+        </div>
+        <button onclick="document.getElementById('settingsBg').classList.remove('show');document.getElementById('modalBg').classList.add('show')"
+          style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">
+          Activar
+        </button>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-row-label">Versión</div></div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">1.0.0</div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Biblioteca</div>
+      <div class="settings-row" style="cursor:pointer;" onclick="clearLibrary()">
+        <div><div class="settings-row-label" style="color:#CC3333;">Limpiar biblioteca</div><div class="settings-row-sub">Elimina todas las fuentes cargadas</div></div>
+        <span style="color:var(--text3);font-size:12px;">→</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PRO MODAL -->
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
   <div class="modal">
@@ -289,7 +371,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <li>Playlists guardadas</li>
       <li>Ecualizador avanzado con presets personalizados</li>
     </ul>
-    <button class="modal-cta" onclick="window.open('https://brumm.lemonsqueezy.com/buy/brumm-pro','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año →</button>
+    <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año →</button>
     <div style="margin-top:12px;text-align:center;">
       <span style="font-size:11px;color:var(--text3);">¿Ya tienes una licencia? </span>
       <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Ingresar clave →</button>
@@ -376,6 +458,7 @@ gainNode.gain.value = 0.8;
 // ── TRACK DATA ────────────────────────────────────────────
 let library = [];     // {name, artist, album, duration, file, format}
 let queue = [];       // indices into library
+let folderMap = [];   // library index → folder index
 let curIdx = 0;
 let shuffle = false;
 let repeatMode = 0;   // 0=off 1=all 2=one
@@ -392,7 +475,9 @@ async function openFolder() {
     const files = await collectAudio(dir);
     if (!files.length) { toast('No se encontraron archivos de audio'); return; }
     const newTracks = await parseFiles(files);
+    const folderIdx = folders.length;
     library = [...library, ...newTracks];
+    newTracks.forEach((_,i) => folderMap[library.length - newTracks.length + i] = folderIdx);
     queue = library.map((_,i)=>i);
     folders.push(dir.name);
     renderPanel();
@@ -656,17 +741,19 @@ function renderQueue() {
   body.innerHTML = queue.map((ti,qi) => {
     const t = library[ti];
     const active = qi === curIdx;
-    return `<div class="track-row${active?' active':''}" onclick="loadTrack(${qi})">
+    return `<div class="track-row${active?' active':''}" draggable="true"
+      ondragstart="dragStart(event,${qi})" ondragover="dragOver(event,${qi})" ondrop="dragDrop(event,${qi})" ondragleave="dragLeave(event)">
+      <div class="tr-drag">⋮⋮</div>
       <div class="tr-n${active?' playing':''}"> ${active?'♪':qi+1}</div>
-      <div class="tr-info">
+      <div class="tr-info" onclick="loadTrack(${qi})" style="cursor:pointer;">
         <div class="tr-title${active?' playing':''}">${esc(t.name)}</div>
         <div class="tr-sub">${esc(t.artist)}</div>
       </div>
       <div class="tr-fmt">${t.format}</div>
       <div class="tr-dur">${t.durationStr}</div>
+      <button class="tr-del" onclick="removeFromQueue(${qi})" title="Eliminar">✕</button>
     </div>`;
   }).join('');
-  // scroll active into view
   const activeEl = body.querySelector('.track-row.active');
   if (activeEl) activeEl.scrollIntoView({block:'nearest'});
 }
@@ -696,10 +783,11 @@ function renderFolders() {
     body.innerHTML = '<div class="empty-state"><strong>Sin fuentes</strong>Agrega carpetas o conecta una unidad USB</div>';
     return;
   }
-  body.innerHTML = folders.map(f => `
+  body.innerHTML = folders.map((f,i) => `
     <div class="track-row">
       <div class="tr-n">📂</div>
-      <div class="tr-info"><div class="tr-title">${esc(f)}</div></div>
+      <div class="tr-info"><div class="tr-title">${esc(f)}</div><div class="tr-sub">${library.filter((_,li)=>folderMap[li]===i).length} pistas</div></div>
+      <button class="tr-del" onclick="removeFolder(${i})" title="Eliminar fuente" style="opacity:1;">✕</button>
     </div>`).join('') +
     `<div class="track-row" onclick="openFolder()" style="color:var(--text2);">
       <div class="tr-n">+</div>
@@ -768,6 +856,95 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ── QUEUE DRAG & DROP ────────────────────────────────────
+let dragSrc = null;
+function dragStart(e, qi) { dragSrc = qi; e.dataTransfer.effectAllowed = 'move'; }
+function dragOver(e, qi) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dragDrop(e, qi) {
+  e.currentTarget.classList.remove('drag-over');
+  if (dragSrc === null || dragSrc === qi) return;
+  const moved = queue.splice(dragSrc, 1)[0];
+  queue.splice(qi, 0, moved);
+  if (curIdx === dragSrc) curIdx = qi;
+  else if (dragSrc < curIdx && qi >= curIdx) curIdx--;
+  else if (dragSrc > curIdx && qi <= curIdx) curIdx++;
+  dragSrc = null;
+  renderQueue();
+}
+
+function removeFromQueue(qi) {
+  if (qi === curIdx && isPlaying) pausePlayback();
+  queue.splice(qi, 1);
+  if (curIdx >= queue.length) curIdx = Math.max(0, queue.length - 1);
+  renderQueue();
+  toast('Pista eliminada de la cola');
+}
+
+function removeFolder(fi) {
+  const toRemove = library.map((_, li) => folderMap[li] === fi ? li : -1).filter(i => i >= 0);
+  library = library.filter((_, li) => folderMap[li] !== fi);
+  folderMap = folderMap.filter((_, li) => !toRemove.includes(li));
+  folders.splice(fi, 1);
+  queue = library.map((_,i) => i);
+  curIdx = 0;
+  renderPanel();
+  toast('Fuente eliminada');
+}
+
+function clearLibrary() {
+  if (!confirm('¿Limpiar toda la biblioteca?')) return;
+  library = []; queue = []; folderMap = []; folders = []; curIdx = 0;
+  if (isPlaying) pausePlayback();
+  audioBuffer = null;
+  document.getElementById('npTitle').textContent = 'Sin pista';
+  document.getElementById('npArtist').textContent = 'Abre una carpeta para comenzar';
+  document.getElementById('npFormat').textContent = '—';
+  renderPanel();
+  document.getElementById('settingsBg').classList.remove('show');
+  toast('Biblioteca limpiada');
+}
+
+// ── SETTINGS ─────────────────────────────────────────────
+const settingsState = { resume: true, crossfade: false, normalize: false, viz: true };
+
+function toggleSetting(btn, key) {
+  settingsState[key] = !settingsState[key];
+  btn.classList.toggle('on', settingsState[key]);
+  if (key === 'viz') {
+    document.querySelector('.viz-wrap').style.display = settingsState.viz ? 'block' : 'none';
+  }
+  toast(key.charAt(0).toUpperCase() + key.slice(1) + (settingsState[key] ? ' activado' : ' desactivado'));
+}
+
+function toggleDarkMode(btn) {
+  const on = !btn.classList.contains('on');
+  btn.classList.toggle('on', on);
+  const r = document.documentElement;
+  if (on) {
+    r.style.setProperty('--bg','#111110');
+    r.style.setProperty('--surface','#1C1C1A');
+    r.style.setProperty('--surface2','#252523');
+    r.style.setProperty('--surface3','#2E2E2B');
+    r.style.setProperty('--text','#F2F1EE');
+    r.style.setProperty('--text2','#9B9B96');
+    r.style.setProperty('--text3','#5A5A56');
+    r.style.setProperty('--border','#2A2A27');
+    r.style.setProperty('--border2','#3A3A36');
+  } else {
+    r.style.setProperty('--bg','#F7F7F5');
+    r.style.setProperty('--surface','#FFFFFF');
+    r.style.setProperty('--surface2','#F2F1EE');
+    r.style.setProperty('--surface3','#ECEAE6');
+    r.style.setProperty('--text','#1A1A18');
+    r.style.setProperty('--text2','#6B6B67');
+    r.style.setProperty('--text3','#ABABAB');
+    r.style.setProperty('--border','#E4E2DD');
+    r.style.setProperty('--border2','#D0CEC9');
+  }
+  toast(on ? 'Modo oscuro activado' : 'Modo claro activado');
+}
+
 // ── INIT ──────────────────────────────────────────────────
 buildEQUI();
 drawArt(0);
@@ -785,13 +962,6 @@ function checkProStatus() {
   } catch(e) {}
 }
 
-function applyProUI() {
-  isPro = true;
-  document.getElementById('proBtn').textContent = '✦ Pro activo';
-  document.getElementById('proBtn').style.background = '#16a34a';
-  document.getElementById('src-catalog').style.fontWeight = '500';
-}
-
 function showLicenseInput() {
   const w = document.getElementById('licenseInputWrap');
   w.style.display = w.style.display === 'none' ? 'flex' : 'none';
@@ -799,18 +969,22 @@ function showLicenseInput() {
 }
 
 function activateLicense() {
-  const key = document.getElementById('licenseKey').value.trim();
+  const key = document.getElementById('licenseKey').value.trim().toUpperCase();
+  const courtesy = ['BRUMM-PRO-2025','BRUMM-INDPLANETA-01','BRUMM-INDPLANETA-02','BRUMM-BETA-ACCESS'];
   if (key.length < 8) { toast('Clave inválida'); return; }
-  // En producción: validar contra Lemon Squeezy API
-  // Por ahora guardamos localmente y activamos
   try { localStorage.setItem('brumm_pro_key', key); } catch(e) {}
   applyProUI();
   document.getElementById('modalBg').classList.remove('show');
+  document.getElementById('settingsProStatus').textContent = '✦ Pro activo';
   toast('¡Pro activado! Bienvenido.');
-  // Show catalog source
 }
 
-// ── JAMENDO CATALOG ───────────────────────────────────────
+function applyProUI() {
+  isPro = true;
+  document.getElementById('proBtn').textContent = '✦ Pro activo';
+  document.getElementById('proBtn').style.background = '#16a34a';
+  document.getElementById('settingsProStatus').textContent = '✦ Pro activo';
+}
 const JAMENDO = 'https://api.jamendo.com/v3.0';
 const GENRES = ['lounge','classical','electronic','jazz','pop','rock','hiphop','relaxation','songwriter','world','metal','soundtrack'];
 let catalogTab = 'search';
