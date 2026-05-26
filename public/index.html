@@ -441,6 +441,8 @@ function playFrom(offset) {
   sourceNode.start(0, offset);
   isPlaying = true;
   document.getElementById('playBtn').textContent = '⏸';
+  document.getElementById('playBtn').classList.remove('loading');
+  updateMediaSessionState(true);
   resumeViz();
 }
 
@@ -450,6 +452,7 @@ function pausePlayback() {
   try{sourceNode.stop();}catch(e){}
   isPlaying = false;
   document.getElementById('playBtn').textContent = '▶';
+  updateMediaSessionState(false);
   stopViz();
 }
 
@@ -560,6 +563,35 @@ function updateNPDisplay(t) {
   document.getElementById('heartBtn').textContent = '♡';
   document.getElementById('heartBtn').classList.remove('on');
   liked = false;
+  updateMediaSession(t.name, t.artist, t.album || '—', null);
+}
+
+// ── MEDIA SESSION (lock screen) ───────────────────────────
+function updateMediaSession(title, artist, album, artworkUrl) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title,
+    artist,
+    album,
+    artwork: artworkUrl
+      ? [{ src: artworkUrl, sizes: '512x512', type: 'image/jpeg' }]
+      : [{ src: '/icon-512.svg', sizes: '512x512', type: 'image/svg+xml' }]
+  });
+  navigator.mediaSession.setActionHandler('play',          () => { if(!isPlaying) togglePlay(); });
+  navigator.mediaSession.setActionHandler('pause',         () => { if(isPlaying) pausePlayback(); });
+  navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+  navigator.mediaSession.setActionHandler('nexttrack',     () => nextTrack());
+  navigator.mediaSession.setActionHandler('seekto', e => {
+    if (!audioBuffer) return;
+    pausePlayback();
+    pausedAt = e.seekTime;
+    playFrom(e.seekTime);
+  });
+}
+
+function updateMediaSessionState(playing) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
 }
 
 // ── CONTROLS ──────────────────────────────────────────────
@@ -1132,6 +1164,7 @@ async function playJamendoTrack(idx) {
   document.getElementById('playBtn').classList.add('loading');
   document.getElementById('playBtn').textContent = '…';
   drawArt(idx);
+  updateMediaSession(t.name, t.artist_name, 'Jamendo', t.image || null);
   if (t.image) {
     const img = new Image(); img.crossOrigin='anonymous';
     img.onload = () => {
