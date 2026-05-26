@@ -74,8 +74,9 @@ body{display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 /* Volume */
 .vol-row{display:flex;align-items:center;gap:8px;}
 .vol-icon{font-size:12px;color:var(--text3);}
-input[type=range].vol{flex:1;height:3px;-webkit-appearance:none;appearance:none;border-radius:2px;cursor:pointer;outline:none;background:linear-gradient(to right,var(--text) 70%,var(--surface2) 70%);}
-input[type=range].vol::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;background:var(--text);border-radius:50%;cursor:grab;}
+input[type=range].vol{flex:1;height:20px;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer;outline:none;}
+input[type=range].vol::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(to right,var(--text) 80%,var(--surface2) 80%);}
+input[type=range].vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--text);border-radius:50%;cursor:grab;margin-top:-5px;}
 
 /* ── QUEUE / LIBRARY ── */
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
@@ -162,8 +163,18 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .track-row .tr-drag{width:16px;color:var(--text3);font-size:12px;cursor:grab;flex-shrink:0;opacity:0;text-align:center;}
 .track-row:hover .tr-drag{opacity:1;}
 .track-row.drag-over{border-top:2px solid var(--text);}
+/* ── LYRICS ── */
+.lyrics-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:none;}
+.lyrics-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);}
+.lyrics-title{font-size:12px;font-weight:500;color:var(--text2);}
+.lyrics-body{padding:16px 18px;max-height:220px;overflow-y:auto;line-height:1.9;font-size:13px;color:var(--text2);}
+.lyrics-body::-webkit-scrollbar{width:4px;}
+.lyrics-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.lyric-line{transition:color .3s,font-weight .2s;cursor:pointer;padding:1px 0;}
+.lyric-line.active{color:var(--text);font-weight:500;font-size:14px;}
+.lyric-line:hover{color:var(--text);}
+.lyrics-empty{text-align:center;color:var(--text3);font-size:12px;padding:24px 0;}
 </style>
-</head>
 <body>
 
 <div class="topbar">
@@ -204,6 +215,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       </div>
       <div class="np-actions">
         <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorito">♡</button>
+        <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Letra">♩</button>
         <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Cola">≡</button>
       </div>
     </div>
@@ -228,6 +240,17 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <span class="vol-icon">🔈</span>
       <input type="range" class="vol" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this)">
       <span class="vol-icon">🔊</span>
+    </div>
+  </div>
+
+  <!-- LYRICS PANEL -->
+  <div class="lyrics-panel" id="lyricsPanel">
+    <div class="lyrics-head">
+      <span class="lyrics-title" id="lyricsMeta">Letra</span>
+      <button onclick="toggleLyrics()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text3);">✕</button>
+    </div>
+    <div class="lyrics-body" id="lyricsBody">
+      <div class="lyrics-empty">Reproduce una pista para ver la letra</div>
     </div>
   </div>
 
@@ -444,6 +467,7 @@ function playFrom(offset) {
   document.getElementById('playBtn').classList.remove('loading');
   updateMediaSessionState(true);
   resumeViz();
+  if (typeof startLRCSync === 'function' && lyricsMode === 'lrc') startLRCSync();
 }
 
 function pausePlayback() {
@@ -454,6 +478,7 @@ function pausePlayback() {
   document.getElementById('playBtn').textContent = '▶';
   updateMediaSessionState(false);
   stopViz();
+  if (typeof stopLRCSync === 'function') stopLRCSync();
 }
 
 gainNode.gain.value = 0.8;
@@ -545,6 +570,7 @@ async function loadTrack(idx) {
     document.getElementById('timeDur').textContent = t.durationStr;
     renderPanel();
     playFrom(0);
+    if (lyricsVisible) fetchLyrics(t.artist, t.name);
   } catch(e) {
     toast('No se pudo decodificar el archivo');
     document.getElementById('playBtn').classList.remove('loading');
@@ -656,9 +682,19 @@ function toggleHeart() {
 }
 
 function setVolume(el) {
-  const v = el.value / 100;
+  // Curva logarítmica: el oído percibe el volumen de forma exponencial
+  const v = Math.pow(el.value / 100, 2);
   gainNode.gain.value = v;
-  el.style.background = `linear-gradient(to right,var(--text) ${el.value}%,var(--surface2) ${el.value}%)`;
+  el.style.setProperty('--vol-pct', el.value + '%');
+  el.style.cssText += `; --vol-pct:${el.value}%`;
+  // Update track gradient via inline style on the track pseudo-element workaround
+  el.setAttribute('data-vol', el.value);
+  const pct = el.value;
+  el.style.background = 'transparent';
+  // Apply via dynamic stylesheet
+  let s = document.getElementById('vol-style');
+  if (!s) { s = document.createElement('style'); s.id='vol-style'; document.head.appendChild(s); }
+  s.textContent = `input[type=range].vol::-webkit-slider-runnable-track{background:linear-gradient(to right,var(--text) ${pct}%,var(--surface2) ${pct}%);}`;
 }
 
 // Seek
@@ -1182,12 +1218,122 @@ async function playJamendoTrack(idx) {
     audioBuffer = await AC.decodeAudioData(ab);
     document.getElementById('playBtn').classList.remove('loading');
     playFrom(0);
+    if (lyricsVisible) fetchLyrics(t.artist_name, t.name);
   } catch(e) {
     toast('No se pudo cargar este track');
     document.getElementById('playBtn').classList.remove('loading');
     document.getElementById('playBtn').textContent = '▶';
   }
+}// ── LYRICS (LRCLIB) ──────────────────────────────────────
+let lyricsVisible = false;
+let lrcLines = [];      // [{time, text}] para LRC sincronizado
+let plainLyrics = '';
+let lyricsMode = 'none'; // 'lrc' | 'plain' | 'none'
+let lyricsRAF = null;
+
+function toggleLyrics() {
+  lyricsVisible = !lyricsVisible;
+  const panel = document.getElementById('lyricsPanel');
+  const btn = document.getElementById('lyricsBtn');
+  panel.style.display = lyricsVisible ? 'block' : 'none';
+  btn.classList.toggle('on', lyricsVisible);
+  if (lyricsVisible && lrcLines.length === 0 && !plainLyrics) {
+    fetchLyrics();
+  }
+}
+
+async function fetchLyrics(artist, title) {
+  const a = artist || document.getElementById('npArtist').textContent.replace(' · Jamendo','').trim();
+  const t = title || document.getElementById('npTitle').textContent.trim();
+  if (!a || !t || a === 'Abre una carpeta para comenzar') return;
+
+  lrcLines = []; plainLyrics = ''; lyricsMode = 'none';
+  document.getElementById('lyricsBody').innerHTML = '<div class="lyrics-empty">Buscando letra…</div>';
+  document.getElementById('lyricsMeta').textContent = `${t} — ${a}`;
+
+  try {
+    const url = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(a)}&track_name=${encodeURIComponent(t)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('not found');
+    const data = await res.json();
+
+    if (data.syncedLyrics) {
+      lrcLines = parseLRC(data.syncedLyrics);
+      lyricsMode = 'lrc';
+      renderLRC();
+      startLRCSync();
+    } else if (data.plainLyrics) {
+      plainLyrics = data.plainLyrics;
+      lyricsMode = 'plain';
+      renderPlain();
+    } else {
+      throw new Error('empty');
+    }
+  } catch(e) {
+    document.getElementById('lyricsBody').innerHTML =
+      '<div class="lyrics-empty">No se encontró letra para esta pista</div>';
+  }
+}
+
+function parseLRC(lrc) {
+  return lrc.split('\n')
+    .map(line => {
+      const m = line.match(/^\[(\d+):(\d+\.\d+)\](.*)/);
+      if (!m) return null;
+      return { time: parseInt(m[1])*60 + parseFloat(m[2]), text: m[3].trim() };
+    })
+    .filter(Boolean);
+}
+
+function renderLRC() {
+  const body = document.getElementById('lyricsBody');
+  if (!lrcLines.length) return;
+  body.innerHTML = lrcLines.map((l,i) =>
+    `<div class="lyric-line" id="ll${i}" onclick="seekToLine(${l.time})">${l.text || '·'}</div>`
+  ).join('');
+}
+
+function renderPlain() {
+  const body = document.getElementById('lyricsBody');
+  body.innerHTML = plainLyrics
+    .split('\n')
+    .map(l => `<div class="lyric-line">${l || '<br>'}</div>`)
+    .join('');
+}
+
+function seekToLine(t) {
+  if (!audioBuffer) return;
+  pausePlayback();
+  pausedAt = t;
+  playFrom(t);
+}
+
+function startLRCSync() {
+  if (lyricsRAF) cancelAnimationFrame(lyricsRAF);
+  let lastIdx = -1;
+  function tick() {
+    if (!isPlaying || lyricsMode !== 'lrc') { lyricsRAF = null; return; }
+    const cur = AC.currentTime - startedAt;
+    let idx = lrcLines.findIndex((l,i) => {
+      const next = lrcLines[i+1];
+      return cur >= l.time && (!next || cur < next.time);
+    });
+    if (idx !== -1 && idx !== lastIdx) {
+      document.querySelectorAll('.lyric-line').forEach(el => el.classList.remove('active'));
+      const el = document.getElementById('ll'+idx);
+      if (el) {
+        el.classList.add('active');
+        if (lyricsVisible) el.scrollIntoView({block:'center',behavior:'smooth'});
+      }
+      lastIdx = idx;
+    }
+    lyricsRAF = requestAnimationFrame(tick);
+  }
+  lyricsRAF = requestAnimationFrame(tick);
+}
+
+function stopLRCSync() {
+  if (lyricsRAF) { cancelAnimationFrame(lyricsRAF); lyricsRAF = null; }
 }
 </script>
-</body>
 </html>
