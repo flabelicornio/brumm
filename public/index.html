@@ -174,6 +174,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .lyric-line.active{color:var(--text);font-weight:500;font-size:14px;}
 .lyric-line:hover{color:var(--text);}
 .lyrics-empty{text-align:center;color:var(--text3);font-size:12px;padding:24px 0;}
+/* ── VIDEO PLAYER ── */
+.video-wrap{width:100%;background:#000;border-radius:10px;overflow:hidden;display:none;position:relative;aspect-ratio:16/9;margin-bottom:4px;}
+.video-wrap video{width:100%;height:100%;display:block;outline:none;}
+.video-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;font-family:var(--mono);padding:3px 7px;border-radius:4px;pointer-events:none;letter-spacing:.03em;}
+.artwork.hidden{display:none;}
 </style>
 <body>
 
@@ -207,7 +212,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 
   <div class="nowplaying">
     <div class="np-top">
-      <div class="artwork"><canvas id="artCanvas" width="68" height="68"></canvas></div>
+      <div class="artwork" id="artworkWrap"><canvas id="artCanvas" width="68" height="68"></canvas></div>
       <div class="np-info">
         <div class="np-title" id="npTitle">Sin pista</div>
         <div class="np-artist" id="npArtist">Abre una carpeta para comenzar</div>
@@ -218,6 +223,15 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Letra">♩</button>
         <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Cola">≡</button>
       </div>
+    </div>
+
+    <!-- VIDEO WRAP — visible solo en modo video -->
+    <div class="video-wrap" id="videoWrap">
+      <video id="videoEl" preload="metadata" playsinline
+        onended="nextTrack()"
+        ontimeupdate="videoTick()"
+        onloadedmetadata="videoReady()"></video>
+      <div class="video-badge" id="videoBadge">VIDEO</div>
     </div>
 
     <div class="viz-wrap"><canvas id="vizCanvas"></canvas></div>
@@ -367,6 +381,10 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <div><div class="settings-row-label">Versión</div></div>
         <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">1.0.0</div>
       </div>
+      <div class="settings-row" style="cursor:pointer;" onclick="checkForUpdates()">
+        <div><div class="settings-row-label">Buscar actualización</div><div class="settings-row-sub">Verifica si hay una versión nueva</div></div>
+        <span id="updateStatus" style="font-size:11px;color:var(--text3);">→</span>
+      </div>
     </div>
 
     <div class="settings-section">
@@ -472,6 +490,13 @@ function playFrom(offset) {
 
 function pausePlayback() {
   if (!isPlaying) return;
+  if (videoMode) {
+    document.getElementById('videoEl').pause();
+    isPlaying = false;
+    document.getElementById('playBtn').textContent = '▶';
+    updateMediaSessionState(false);
+    return;
+  }
   pausedAt = AC.currentTime - startedAt;
   try{sourceNode.stop();}catch(e){}
   isPlaying = false;
@@ -517,7 +542,8 @@ async function openFolder() {
 }
 
 async function collectAudio(dir) {
-  const exts = ['mp3','flac','aac','m4a','ogg','wav','opus','wma'];
+  const exts = ['mp3','flac','aac','m4a','ogg','wav','opus','wma',
+                 'mp4','webm','mkv','mov','avi','m4v','ogv','3gp'];
   const files = [];
   for await (const entry of dir.values()) {
     if (entry.kind === 'file') {
@@ -536,6 +562,9 @@ async function collectAudio(dir) {
   return files;
 }
 
+const VIDEO_EXTS = ['mp4','webm','mkv','mov','avi','m4v','ogv','3gp'];
+function isVideoExt(ext) { return VIDEO_EXTS.includes(ext.toLowerCase()); }
+
 async function parseFiles(files) {
   return files.map(f => {
     const name = f.name.replace(/\.[^.]+$/, '');
@@ -545,36 +574,81 @@ async function parseFiles(files) {
       name: parts.length > 1 ? parts.slice(1).join(' - ') : name,
       artist: parts.length > 1 ? parts[0] : 'Desconocido',
       album: '—', duration: 0, durationStr: '—',
-      file: f, format: ext
+      file: f, format: ext,
+      isVideo: isVideoExt(ext)
     };
   });
 }
 
 // ── LOAD & DECODE ─────────────────────────────────────────
+let videoMode = false;
+let videoObjectURL = null;
+
+function setVideoMode(on) {
+  videoMode = on;
+  document.getElementById('videoWrap').style.display = on ? 'block' : 'none';
+  document.getElementById('artworkWrap').classList.toggle('hidden', on);
+  document.querySelector('.viz-wrap').style.display = on ? 'none' : 'block';
+}
+
 async function loadTrack(idx) {
   if (!library.length) return;
   if (isPlaying) pausePlayback();
-  catalogSource = null; // salimos del modo Jamendo
+  catalogSource = null;
   curIdx = idx;
   pausedAt = 0;
   const t = library[queue[curIdx]];
   updateNPDisplay(t);
-  drawArt(queue[curIdx]);
+  if (!t.isVideo) drawArt(queue[curIdx]);
   document.getElementById('playBtn').classList.add('loading');
   document.getElementById('playBtn').textContent = '…';
-  try {
-    const ab = await t.file.arrayBuffer();
-    audioBuffer = await AC.decodeAudioData(ab);
-    t.duration = audioBuffer.duration;
-    t.durationStr = fmtTime(audioBuffer.duration);
-    document.getElementById('timeDur').textContent = t.durationStr;
-    renderPanel();
-    playFrom(0);
-    if (lyricsVisible) fetchLyrics(t.artist, t.name);
-  } catch(e) {
-    toast('No se pudo decodificar el archivo');
-    document.getElementById('playBtn').classList.remove('loading');
-    document.getElementById('playBtn').textContent = '▶';
+
+  // Revoke previous video URL
+  if (videoObjectURL) { URL.revokeObjectURL(videoObjectURL); videoObjectURL = null; }
+
+  if (t.isVideo) {
+    // ── VIDEO MODE ──
+    setVideoMode(true);
+    document.getElementById('videoBadge').textContent = t.format;
+    const url = URL.createObjectURL(t.file);
+    videoObjectURL = url;
+    const vid = document.getElementById('videoEl');
+    vid.src = url;
+    vid.load();
+    // Connect audio output through Web Audio for EQ/volume
+    if (!vid._connected) {
+      const src = AC.createMediaElementSource(vid);
+      src.connect(eqEnabled ? eqFilters[0] : gainNode);
+      vid._connected = true;
+    }
+    vid.play().then(() => {
+      isPlaying = true;
+      audioBuffer = { duration: vid.duration || 0 }; // stub para seek
+      document.getElementById('playBtn').classList.remove('loading');
+      document.getElementById('playBtn').textContent = '⏸';
+      updateMediaSessionState(true);
+    }).catch(() => {
+      toast('No se pudo reproducir el video');
+      document.getElementById('playBtn').classList.remove('loading');
+      document.getElementById('playBtn').textContent = '▶';
+    });
+  } else {
+    // ── AUDIO MODE ──
+    setVideoMode(false);
+    try {
+      const ab = await t.file.arrayBuffer();
+      audioBuffer = await AC.decodeAudioData(ab);
+      t.duration = audioBuffer.duration;
+      t.durationStr = fmtTime(audioBuffer.duration);
+      document.getElementById('timeDur').textContent = t.durationStr;
+      renderPanel();
+      playFrom(0);
+      if (lyricsVisible) fetchLyrics(t.artist, t.name);
+    } catch(e) {
+      toast('No se pudo decodificar el archivo');
+      document.getElementById('playBtn').classList.remove('loading');
+      document.getElementById('playBtn').textContent = '▶';
+    }
   }
 }
 
@@ -623,7 +697,13 @@ function updateMediaSessionState(playing) {
 // ── CONTROLS ──────────────────────────────────────────────
 function togglePlay() {
   if (AC.state === 'suspended') AC.resume();
-  if (!library.length) { openFolder(); return; }
+  if (!library.length && !catalogSource) { openFolder(); return; }
+  if (videoMode) {
+    const vid = document.getElementById('videoEl');
+    if (vid.paused) { vid.play(); isPlaying=true; document.getElementById('playBtn').textContent='⏸'; updateMediaSessionState(true); }
+    else { vid.pause(); isPlaying=false; document.getElementById('playBtn').textContent='▶'; updateMediaSessionState(false); }
+    return;
+  }
   if (isPlaying) pausePlayback();
   else { playFrom(pausedAt); }
 }
@@ -699,9 +779,14 @@ function setVolume(el) {
 
 // Seek
 document.getElementById('progWrap').addEventListener('click', e => {
-  if (!audioBuffer) return;
   const r = e.currentTarget.getBoundingClientRect();
   const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  if (videoMode) {
+    const vid = document.getElementById('videoEl');
+    if (vid.duration) vid.currentTime = ratio * vid.duration;
+    return;
+  }
+  if (!audioBuffer) return;
   const seekTo = ratio * audioBuffer.duration;
   pausePlayback();
   pausedAt = seekTo;
@@ -710,6 +795,7 @@ document.getElementById('progWrap').addEventListener('click', e => {
 
 // ── PROGRESS TICKER ───────────────────────────────────────
 setInterval(() => {
+  if (videoMode) return; // video usa videoTick via ontimeupdate
   if (!isPlaying || !audioBuffer) return;
   const cur = AC.currentTime - startedAt;
   const ratio = Math.min(1, cur / audioBuffer.duration) * 100;
@@ -717,6 +803,26 @@ setInterval(() => {
   document.getElementById('progThumb').style.left = ratio + '%';
   document.getElementById('timeCur').textContent = fmtTime(cur);
 }, 250);
+
+function videoTick() {
+  const vid = document.getElementById('videoEl');
+  if (!vid.duration) return;
+  const ratio = (vid.currentTime / vid.duration) * 100;
+  document.getElementById('progFill').style.width = ratio + '%';
+  document.getElementById('progThumb').style.left = ratio + '%';
+  document.getElementById('timeCur').textContent = fmtTime(vid.currentTime);
+}
+
+function videoReady() {
+  const vid = document.getElementById('videoEl');
+  const t = library[queue[curIdx]];
+  if (t) {
+    t.duration = vid.duration;
+    t.durationStr = fmtTime(vid.duration);
+  }
+  document.getElementById('timeDur').textContent = fmtTime(vid.duration);
+  audioBuffer = { duration: vid.duration };
+}
 
 // ── EQ ────────────────────────────────────────────────────
 function buildEQUI() {
@@ -1224,7 +1330,33 @@ async function playJamendoTrack(idx) {
     document.getElementById('playBtn').classList.remove('loading');
     document.getElementById('playBtn').textContent = '▶';
   }
-}// ── LYRICS (LRCLIB) ──────────────────────────────────────
+}function checkForUpdates() {
+  const status = document.getElementById('updateStatus');
+  status.textContent = '…';
+  if (!('serviceWorker' in navigator)) {
+    status.textContent = 'No disponible';
+    return;
+  }
+  navigator.serviceWorker.getRegistration().then(reg => {
+    if (!reg) { status.textContent = 'No instalado'; return; }
+    reg.update().then(() => {
+      if (reg.waiting) {
+        // Nueva versión lista — pedimos que tome control
+        status.textContent = '¡Nueva versión!';
+        toast('Nueva versión disponible — recargando…');
+        setTimeout(() => {
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          window.location.reload();
+        }, 1500);
+      } else {
+        status.textContent = '✓ Al día';
+        toast('Ya tienes la versión más reciente');
+        setTimeout(() => status.textContent = '→', 3000);
+      }
+    });
+  });
+}
+
 let lyricsVisible = false;
 let lrcLines = [];      // [{time, text}] para LRC sincronizado
 let plainLyrics = '';
