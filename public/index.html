@@ -232,6 +232,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         ontimeupdate="videoTick()"
         onloadedmetadata="videoReady()"></video>
       <div class="video-badge" id="videoBadge">VIDEO</div>
+      <button onclick="toggleFullscreen()" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);border:none;color:#fff;font-size:14px;width:30px;height:30px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Pantalla completa">⛶</button>
     </div>
 
     <div class="viz-wrap"><canvas id="vizCanvas"></canvas></div>
@@ -1330,7 +1331,13 @@ async function playJamendoTrack(idx) {
     document.getElementById('playBtn').classList.remove('loading');
     document.getElementById('playBtn').textContent = '▶';
   }
-}function checkForUpdates() {
+}function toggleFullscreen() {
+  const vid = document.getElementById('videoEl');
+  if (!document.fullscreenElement) vid.requestFullscreen().catch(()=>{});
+  else document.exitFullscreen();
+}
+
+function checkForUpdates() {
   const status = document.getElementById('updateStatus');
   status.textContent = '…';
   if (!('serviceWorker' in navigator)) {
