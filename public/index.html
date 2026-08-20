@@ -215,7 +215,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <div class="artwork" id="artworkWrap"><canvas id="artCanvas" width="68" height="68"></canvas></div>
       <div class="np-info">
         <div class="np-title" id="npTitle">Sin pista</div>
-        <div class="np-artist" id="npArtist">Abre una carpeta para comenzar</div>
+        <div class="np-artist" id="npArtist">Abre audio o video para comenzar</div>
         <div class="np-format" id="npFormat">—</div>
       </div>
       <div class="np-actions">
@@ -299,7 +299,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 
   <button class="open-btn" onclick="openFolder()">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-    Abrir carpeta o unidad extraíble…
+    Abrir carpeta — audio y video
   </button>
 
   <!-- CATALOG PANEL — hidden until Pro activated -->
@@ -924,7 +924,7 @@ function renderPanel() {
 function renderQueue() {
   const body = document.getElementById('panelBody');
   if (!queue.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Cola vacía</strong>Abre una carpeta para cargar música</div>';
+    body.innerHTML = '<div class="empty-state"><strong>Cola vacía</strong>Abre una carpeta para cargar audio o video</div>';
     return;
   }
   body.innerHTML = queue.map((ti,qi) => {
@@ -938,7 +938,7 @@ function renderQueue() {
         <div class="tr-title${active?' playing':''}">${esc(t.name)}</div>
         <div class="tr-sub">${esc(t.artist)}</div>
       </div>
-      <div class="tr-fmt">${t.format}</div>
+      <div class="tr-fmt">${t.isVideo?'🎬 ':''}${t.format}</div>
       <div class="tr-dur">${t.durationStr}</div>
       <button class="tr-del" onclick="removeFromQueue(${qi})" title="Eliminar">✕</button>
     </div>`;
