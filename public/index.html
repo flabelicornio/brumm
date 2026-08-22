@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#F7F7F5">
-<title>Video | Music Brumm</title>
+<title>Music Brumm</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
@@ -185,7 +185,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <div class="topbar">
   <div class="logo">
     <img src="/icon-192.png" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px;">
-    Video | Music <span style="font-weight:300">Brumm</span>
+    Music <span style="font-weight:300">Brumm</span>
   </div>
   <div class="topbar-right">
     <button class="pro-chip" id="proBtn">✦ Pro</button>
@@ -206,7 +206,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </button>
     <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Catálogo ✦
+      Jamendo ✦
+    </button>
+    <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Archive ✦
     </button>
   </div>
 
@@ -327,7 +331,27 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </div>
   </div>
 
-</div>
+  <!-- ARCHIVE.ORG PANEL -->
+  <div id="archivePanel" style="display:none;flex-direction:column;gap:10px;">
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab active" id="atab-cats" onclick="switchArchiveTab('cats')">Categorías</button>
+        <button class="tab" id="atab-search" onclick="switchArchiveTab('search')">Buscar</button>
+      </div>
+      <!-- Category grid -->
+      <div id="archiveCatGrid" style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+      <!-- Search row -->
+      <div style="padding:10px 14px;display:flex;gap:6px;" id="archiveSearchRow" style="display:none;">
+        <input type="text" id="archiveSearch" placeholder="Título, director, año…"
+          style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
+          onkeydown="if(event.key==='Enter')searchArchive()">
+        <button onclick="searchArchive()"
+          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Buscar</button>
+      </div>
+      <div class="panel-body" id="archiveBody" style="max-height:320px;display:none;">
+      </div>
+    </div>
+  </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -1145,6 +1169,8 @@ checkProStatus();
 const JAMENDO_ID = 'a1eb6b2d'; // IndPlaneta's App — developer.jamendo.com
 let isPro = false;
 
+function showProModal() { document.getElementById('modalBg').classList.add('show'); }
+
 function checkProStatus() {
   try {
     const k = localStorage.getItem('brumm_pro_key');
@@ -1185,19 +1211,19 @@ let curJamendoIdx = 0;
 function activateSource(btn, src) {
   document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('catalogPanel').style.display = 'none';
+  document.getElementById('archivePanel').style.display = 'none';
   if (src === 'folder' || src === 'usb') {
-    document.getElementById('catalogPanel').style.display = 'none';
     openFolder();
   } else if (src === 'catalog') {
-    if (!isPro) {
-      document.getElementById('modalBg').classList.add('show');
-      document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
-      document.getElementById('src-folder').classList.add('active');
-      return;
-    }
+    if (!isPro) { showProModal(); document.getElementById('src-folder').classList.add('active'); btn.classList.remove('active'); return; }
     document.getElementById('catalogPanel').style.display = 'flex';
     loadGenreBar();
     loadJamendoNew();
+  } else if (src === 'archive') {
+    if (!isPro) { showProModal(); document.getElementById('src-folder').classList.add('active'); btn.classList.remove('active'); return; }
+    document.getElementById('archivePanel').style.display = 'flex';
+    renderArchiveCats();
   }
 }
 
@@ -1473,6 +1499,186 @@ function startLRCSync() {
 
 function stopLRCSync() {
   if (lyricsRAF) { cancelAnimationFrame(lyricsRAF); lyricsRAF = null; }
+}
+
+// ── INTERNET ARCHIVE ─────────────────────────────────────
+const ARCHIVE_CATS = [
+  { label:'🎬 Cine clásico',  q:'mediatype:movies subject:"feature film" year:[1900 TO 1970]', sort:'downloads desc' },
+  { label:'🎥 Documentales',  q:'mediatype:movies subject:documentary',                        sort:'downloads desc' },
+  { label:'🎵 Conciertos',    q:'mediatype:movies subject:concert',                             sort:'downloads desc' },
+  { label:'📺 Noticieros',    q:'mediatype:movies subject:news',                                sort:'date desc' },
+  { label:'🎞 Cortometrajes', q:'mediatype:movies subject:"short film"',                       sort:'downloads desc' },
+  { label:'🎭 Animación',     q:'mediatype:movies subject:animation OR subject:cartoon',        sort:'downloads desc' },
+  { label:'📡 TV clásica',    q:'mediatype:movies subject:television',                          sort:'downloads desc' },
+  { label:'🔬 Ciencia',       q:'mediatype:movies subject:science OR subject:nature',           sort:'downloads desc' },
+];
+
+let archiveTab = 'cats';
+let archiveResults = [];
+let curArchiveIdx = 0;
+let archiveSource = null;
+
+function switchArchiveTab(tab) {
+  archiveTab = tab;
+  document.querySelectorAll('[id^="atab-"]').forEach(t => t.classList.remove('active'));
+  document.getElementById('atab-'+tab).classList.add('active');
+  const catGrid = document.getElementById('archiveCatGrid');
+  const searchRow = document.getElementById('archiveSearchRow');
+  const body = document.getElementById('archiveBody');
+  if (tab === 'cats') {
+    catGrid.style.display = 'grid';
+    searchRow.style.display = 'none';
+    body.style.display = 'none';
+    renderArchiveCats();
+  } else {
+    catGrid.style.display = 'none';
+    searchRow.style.display = 'flex';
+    body.style.display = 'block';
+    body.innerHTML = '<div class="empty-state">Escribe algo para buscar en Archive.org</div>';
+  }
+}
+
+function renderArchiveCats() {
+  const grid = document.getElementById('archiveCatGrid');
+  grid.innerHTML = ARCHIVE_CATS.map((c,i) =>
+    `<button onclick="loadArchiveCat(${i})"
+      style="padding:10px 8px;border:1px solid var(--border);border-radius:10px;background:var(--surface);
+             font-size:12px;color:var(--text2);cursor:pointer;font-family:var(--font);
+             text-align:left;transition:all .12s;line-height:1.4;"
+      onmouseover="this.style.background='var(--surface2)'"
+      onmouseout="this.style.background='var(--surface)'">${c.label}</button>`
+  ).join('');
+}
+
+async function loadArchiveCat(idx) {
+  const cat = ARCHIVE_CATS[idx];
+  document.getElementById('archiveCatGrid').style.display = 'none';
+  const body = document.getElementById('archiveBody');
+  body.style.display = 'block';
+  body.innerHTML = `<div class="empty-state"><strong>Cargando ${cat.label}…</strong></div>`;
+  await fetchArchive(cat.q, cat.sort);
+}
+
+async function searchArchive() {
+  const q = document.getElementById('archiveSearch').value.trim();
+  if (!q) return;
+  const body = document.getElementById('archiveBody');
+  body.style.display = 'block';
+  body.innerHTML = '<div class="empty-state"><strong>Buscando…</strong></div>';
+  await fetchArchive(`mediatype:movies AND (title:(${q}) OR creator:(${q}))`, 'downloads desc');
+}
+
+async function fetchArchive(query, sort) {
+  try {
+    const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}`
+      + `&fl[]=identifier,title,creator,year,description,runtime,downloads`
+      + `&sort[]=${encodeURIComponent(sort)}&rows=30&page=1&output=json`;
+    const data = await (await fetch(url)).json();
+    archiveResults = (data.response?.docs || []).filter(d => d.identifier);
+    renderArchiveResults();
+  } catch(e) {
+    document.getElementById('archiveBody').innerHTML =
+      '<div class="empty-state"><strong>Error de conexión</strong>Verifica tu internet</div>';
+  }
+}
+
+function renderArchiveResults() {
+  const body = document.getElementById('archiveBody');
+  if (!archiveResults.length) {
+    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Prueba con otra búsqueda</div>';
+    return;
+  }
+  const header = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;">
+    <button onclick="backToArchiveCats()"
+      style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">← Volver</button>
+    <button onclick="playArchiveTrack(0)"
+      style="flex:1;padding:5px 10px;background:var(--text);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);">
+      ▶ Reproducir todo (${archiveResults.length})</button>
+  </div>`;
+  body.innerHTML = header + archiveResults.map((item, i) => {
+    const thumb = `https://archive.org/services/img/${item.identifier}`;
+    const year = item.year ? ` · ${item.year}` : '';
+    const active = archiveSource && curArchiveIdx === i;
+    return `<div class="track-row${active?' active':''}" onclick="playArchiveTrack(${i})">
+      <div class="tr-n${active?' playing':''}">${active?'♪':i+1}</div>
+      <img src="${thumb}" width="44" height="30"
+        style="border-radius:4px;flex-shrink:0;object-fit:cover;background:var(--surface2);"
+        onerror="this.style.display='none'">
+      <div class="tr-info">
+        <div class="tr-title${active?' playing':''}">${esc(item.title||item.identifier)}</div>
+        <div class="tr-sub">${esc((item.creator||'Archive.org')+year)}</div>
+      </div>
+      ${item.runtime?`<div class="tr-dur">${item.runtime}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function backToArchiveCats() {
+  document.getElementById('archiveCatGrid').style.display = 'grid';
+  document.getElementById('archiveBody').style.display = 'none';
+  archiveResults = [];
+}
+
+async function playArchiveTrack(idx) {
+  if (AC.state === 'suspended') AC.resume();
+  const item = archiveResults[idx];
+  if (!item) return;
+  curArchiveIdx = idx;
+  archiveSource = item;
+  catalogSource = null;
+
+  document.getElementById('npTitle').textContent = item.title || item.identifier;
+  document.getElementById('npArtist').textContent = (item.creator||'Archive.org') + (item.year?` · ${item.year}`:'');
+  document.getElementById('npFormat').textContent = 'Archive.org · Dominio público';
+  document.getElementById('playBtn').classList.add('loading');
+  document.getElementById('playBtn').textContent = '…';
+  drawArt(idx);
+
+  const thumb = `https://archive.org/services/img/${item.identifier}`;
+  const img = new Image(); img.crossOrigin='anonymous';
+  img.onload = () => { const c=document.getElementById('artCanvas'); c.getContext('2d').drawImage(img,0,0,68,68); };
+  img.src = thumb;
+
+  toast(`Cargando: ${item.title||item.identifier}`);
+  try {
+    const meta = await (await fetch(`https://archive.org/metadata/${item.identifier}`)).json();
+    const files = meta.files || [];
+    const videoExts = ['mp4','ogv','mpeg','mpg','avi','mov','webm'];
+    let videoFile = files.find(f => f.name?.toLowerCase().endsWith('.mp4') && !f.name.includes('512') && !f.name.includes('thumb'));
+    if (!videoFile) videoFile = files.find(f => videoExts.some(e => f.name?.toLowerCase().endsWith('.'+e)));
+    if (!videoFile) { toast('No se encontró video en este item'); document.getElementById('playBtn').classList.remove('loading'); document.getElementById('playBtn').textContent='▶'; return; }
+
+    const videoURL = `https://archive.org/download/${item.identifier}/${videoFile.name}`;
+    if (isPlaying) pausePlayback();
+    pausedAt = 0;
+    setVideoMode(true);
+    document.getElementById('videoBadge').textContent = videoFile.name.split('.').pop().toUpperCase();
+    const vid = document.getElementById('videoEl');
+    vid._archiveURL = videoURL;
+    vid.src = videoURL;
+    vid.load();
+    if (!vid._connected) {
+      const src = AC.createMediaElementSource(vid);
+      src.connect(eqEnabled ? eqFilters[0] : gainNode);
+      vid._connected = true;
+    }
+    vid.play().then(() => {
+      isPlaying = true;
+      audioBuffer = { duration: vid.duration||0 };
+      document.getElementById('playBtn').classList.remove('loading');
+      document.getElementById('playBtn').textContent = '⏸';
+      updateMediaSessionState(true);
+    }).catch(() => {
+      toast('No se pudo reproducir — intenta otro título');
+      document.getElementById('playBtn').classList.remove('loading');
+      document.getElementById('playBtn').textContent = '▶';
+    });
+    renderArchiveResults();
+  } catch(e) {
+    toast('Error al obtener el video');
+    document.getElementById('playBtn').classList.remove('loading');
+    document.getElementById('playBtn').textContent = '▶';
+  }
 }
 </script>
 </html>
