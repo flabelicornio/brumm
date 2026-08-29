@@ -206,11 +206,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </button>
     <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Music ✦
+      Jamendo ✦
     </button>
     <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Video ✦
+      Archive ✦
     </button>
   </div>
 
@@ -437,10 +437,10 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <li>Playlists guardadas</li>
       <li>Ecualizador avanzado con presets personalizados</li>
     </ul>
-    <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año → </button>
+    <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año →</button>
     <div style="margin-top:12px;text-align:center;">
       <span style="font-size:11px;color:var(--text3);">¿Ya tienes una licencia? </span>
-      <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Ingresar clave o probar gratis → </button>
+      <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Ingresar clave →</button>
     </div>
     <div id="licenseInputWrap" style="display:none;margin-top:10px;gap:6px;">
       <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX"
@@ -1359,8 +1359,15 @@ async function playJamendoTrack(idx) {
   }
 }function toggleFullscreen() {
   const vid = document.getElementById('videoEl');
-  if (!document.fullscreenElement) vid.requestFullscreen().catch(()=>{});
-  else document.exitFullscreen();
+  const wrap = document.getElementById('videoWrap');
+  const el = document.fullscreenElement || document.webkitFullscreenElement;
+  if (el) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  } else {
+    const target = vid.requestFullscreen ? vid : wrap;
+    const req = target.requestFullscreen || target.webkitRequestFullscreen;
+    if (req) req.call(target).catch(()=>{});
+  }
 }
 
 function checkForUpdates() {
