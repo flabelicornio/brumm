@@ -950,7 +950,7 @@ function renderPanel() {
 function renderQueue() {
   const body = document.getElementById('panelBody');
   if (!queue.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Cola vacía</strong>Abre una carpeta para cargar audio o video</div>';
+    body.innerHTML = '<div class="empty-state"><strong>Empty queue</strong>Open a folder to upload audio or video.</div>';
     return;
   }
   body.innerHTML = queue.map((ti,qi) => {
