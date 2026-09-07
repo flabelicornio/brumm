@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#F7F7F5">
-<title>Music Brumm</title>
+<title>Video | Music Brumm</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
@@ -185,7 +185,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <div class="topbar">
   <div class="logo">
     <img src="/icon-192.png" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px;">
-    Music <span style="font-weight:300">Brumm</span>
+    Video | Music <span style="font-weight:300">Brumm</span>
   </div>
   <div class="topbar-right">
     <button class="pro-chip" id="proBtn">✦ Pro</button>
@@ -198,7 +198,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <div class="source-bar">
     <button class="src active" id="src-folder" onclick="activateSource(this,'folder')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Carpeta
+      Folders
     </button>
     <button class="src" id="src-usb" onclick="activateSource(this,'usb')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="1.5" width="6" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M8 9.5V14M5.5 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="5" r=".8" fill="currentColor"/><circle cx="9" cy="7" r=".8" fill="currentColor"/></svg>
@@ -206,11 +206,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </button>
     <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Jamendo ✦
+      Musics ✦
     </button>
     <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Archive ✦
+      Videos ✦
     </button>
   </div>
 
@@ -218,14 +218,14 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <div class="np-top">
       <div class="artwork" id="artworkWrap"><canvas id="artCanvas" width="68" height="68"></canvas></div>
       <div class="np-info">
-        <div class="np-title" id="npTitle">Sin pista</div>
-        <div class="np-artist" id="npArtist">Abre audio o video para comenzar</div>
+        <div class="np-title" id="npTitle">No track</div>
+        <div class="np-artist" id="npArtist">Open audio or video to start</div>
         <div class="np-format" id="npFormat">—</div>
       </div>
       <div class="np-actions">
-        <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorito">♡</button>
-        <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Letra">♩</button>
-        <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Cola">≡</button>
+        <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorite">♡</button>
+        <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Lyrics">♩</button>
+        <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Play List">≡</button>
       </div>
     </div>
 
@@ -248,11 +248,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <div class="prog-times"><span id="timeCur">0:00</span><span id="timeDur">0:00</span></div>
 
     <div class="controls">
-      <button class="ctrl" id="shuffleBtn" onclick="toggleShuffle()" title="Aleatorio">⇄</button>
-      <button class="ctrl" onclick="prevTrack()" title="Anterior">⏮</button>
+      <button class="ctrl" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle">⇄</button>
+      <button class="ctrl" onclick="prevTrack()" title="Prev.">⏮</button>
       <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-      <button class="ctrl" onclick="nextTrack()" title="Siguiente">⏭</button>
-      <button class="ctrl" id="repeatBtn" onclick="cycleRepeat()" title="Repetir">↻</button>
+      <button class="ctrl" onclick="nextTrack()" title="Next">⏭</button>
+      <button class="ctrl" id="repeatBtn" onclick="cycleRepeat()" title="Repeat">↻</button>
     </div>
 
     <div class="vol-row">
@@ -265,36 +265,36 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <!-- LYRICS PANEL -->
   <div class="lyrics-panel" id="lyricsPanel">
     <div class="lyrics-head">
-      <span class="lyrics-title" id="lyricsMeta">Letra</span>
+      <span class="lyrics-title" id="lyricsMeta">Lyrics</span>
       <button onclick="toggleLyrics()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text3);">✕</button>
     </div>
     <div class="lyrics-body" id="lyricsBody">
-      <div class="lyrics-empty">Reproduce una pista para ver la letra</div>
+      <div class="lyrics-empty">Play a track to see see Lyrics available</div>
     </div>
   </div>
 
   <div class="panel">
     <div class="tabs">
-      <button class="tab active" id="tab-queue" onclick="showTab('queue')">Cola</button>
-      <button class="tab" id="tab-library" onclick="showTab('library')">Biblioteca</button>
-      <button class="tab" id="tab-folders" onclick="showTab('folders')">Fuentes</button>
+      <button class="tab active" id="tab-queue" onclick="showTab('queue')">Queue</button>
+      <button class="tab" id="tab-library" onclick="showTab('library')">Library</button>
+      <button class="tab" id="tab-folders" onclick="showTab('folders')">Folders</button>
     </div>
     <div class="panel-body" id="panelBody">
-      <div class="empty-state"><strong>Sin música cargada</strong>Abre una carpeta o unidad USB para comenzar</div>
+      <div class="empty-state"><strong>Empty</strong>Add a Folder / USB</div>
     </div>
   </div>
 
   <div class="eq-panel">
     <div class="eq-head">
-      <span class="eq-title">Ecualizador</span>
+      <span class="eq-title">Equalizer</span>
       <div class="eq-right">
         <button class="eq-toggle on" id="eqToggle" onclick="toggleEQ()">ON</button>
         <select class="eq-preset" id="eqPreset" onchange="applyPreset(this.value)">
-          <option value="flat">Plano</option>
+          <option value="flat">Flat</option>
           <option value="bass">Bass Boost</option>
           <option value="vocal">Vocal</option>
-          <option value="treble">Agudos</option>
-          <option value="classical">Clásica</option>
+          <option value="treble">Treble</option>
+          <option value="classical">Classical</option>
           <option value="lounge">Lounge</option>
         </select>
       </div>
@@ -304,29 +304,29 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 
   <button class="open-btn" onclick="openFolder()">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-    Abrir carpeta — audio y video
+    Open Folder — audio / video
   </button>
 
   <!-- CATALOG PANEL — hidden until Pro activated -->
   <div id="catalogPanel" style="display:none;flex-direction:column;gap:10px;">
     <div class="panel">
       <div class="tabs">
-        <button class="tab active" id="ctab-search" onclick="switchCatalogTab('search')">Buscar</button>
-        <button class="tab" id="ctab-genres" onclick="switchCatalogTab('genres')">Géneros</button>
-        <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Novedades</button>
+        <button class="tab active" id="ctab-search" onclick="switchCatalogTab('search')">Search</button>
+        <button class="tab" id="ctab-genres" onclick="switchCatalogTab('genres')">Genre</button>
+        <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Catalog</button>
       </div>
       <div style="padding:10px 14px;display:flex;gap:6px;" id="catalogSearchRow">
-        <input type="text" id="catalogSearch" placeholder="Buscar artista o canción…"
+        <input type="text" id="catalogSearch" placeholder="Search artists or songs…"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchJamendo()">
         <button onclick="searchJamendo()"
-          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Buscar</button>
+          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
       <div style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;" id="genreBar" style="display:none;">
         <!-- genres injected by JS -->
       </div>
       <div class="panel-body" id="catalogBody" style="max-height:280px;">
-        <div class="empty-state"><strong>Catálogo Jamendo</strong>Más de 500,000 tracks con licencia libre. Busca o elige un género.</div>
+        <div class="empty-state"><strong>Catalog on Jamendo</strong>+500,000 tracks. Search or play a genre.</div>
       </div>
     </div>
   </div>
@@ -335,8 +335,8 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <div id="archivePanel" style="display:none;flex-direction:column;gap:10px;">
     <div class="panel">
       <div class="tabs">
-        <button class="tab active" id="atab-cats" onclick="switchArchiveTab('cats')">Categorías</button>
-        <button class="tab" id="atab-search" onclick="switchArchiveTab('search')">Buscar</button>
+        <button class="tab active" id="atab-cats" onclick="switchArchiveTab('cats')">Categories</button>
+        <button class="tab" id="atab-search" onclick="switchArchiveTab('search')">Search</button>
       </div>
       <!-- Category grid -->
       <div id="archiveCatGrid" style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
@@ -346,7 +346,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchArchive()">
         <button onclick="searchArchive()"
-          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Buscar</button>
+          style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
       <div class="panel-body" id="archiveBody" style="max-height:320px;display:none;">
       </div>
@@ -360,20 +360,20 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <div class="modal-bg" id="settingsBg" onclick="if(event.target===this)this.classList.remove('show')">
   <div class="settings-modal">
     <button class="modal-close" onclick="document.getElementById('settingsBg').classList.remove('show')">✕</button>
-    <h2 style="font-size:17px;font-weight:500;margin-bottom:18px;">Ajustes</h2>
+    <h2 style="font-size:17px;font-weight:500;margin-bottom:18px;">Settings</h2>
 
     <div class="settings-section">
-      <div class="settings-label">Reproducción</div>
+      <div class="settings-label">Play List</div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Continuar al abrir</div><div class="settings-row-sub">Retoma la última pista al iniciar</div></div>
+        <div><div class="settings-row-label">Continue upon opening</div><div class="settings-row-sub">Resumes the last track upon startup.</div></div>
         <button class="toggle-sw on" id="sw-resume" onclick="toggleSetting(this,'resume')"></button>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Crossfade</div><div class="settings-row-sub">Mezcla suave entre pistas (2s)</div></div>
+        <div><div class="settings-row-label">Crossfade</div><div class="settings-row-sub">Smooth mix between tracks (2s)</div></div>
         <button class="toggle-sw" id="sw-crossfade" onclick="toggleSetting(this,'crossfade')"></button>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Normalizar volumen</div><div class="settings-row-sub">Iguala niveles entre archivos</div></div>
+        <div><div class="settings-row-label">Normalize volume</div><div class="settings-row-sub">Match levels between files</div></div>
         <button class="toggle-sw" id="sw-normalize" onclick="toggleSetting(this,'normalize')"></button>
       </div>
     </div>
@@ -381,21 +381,21 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <div class="settings-section">
       <div class="settings-label">Interfaz</div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Modo oscuro</div><div class="settings-row-sub">Cambia al tema oscuro</div></div>
+        <div><div class="settings-row-label">Dark mode</div><div class="settings-row-sub">Switch to dark mode</div></div>
         <button class="toggle-sw" id="sw-dark" onclick="toggleDarkMode(this)"></button>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Visualizador</div><div class="settings-row-sub">Barras de frecuencia en el player</div></div>
+        <div><div class="settings-row-label">Visualizer</div><div class="settings-row-sub">Frequency bars on the player</div></div>
         <button class="toggle-sw on" id="sw-viz" onclick="toggleSetting(this,'viz')"></button>
       </div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Licencia</div>
+      <div class="settings-label">License</div>
       <div class="settings-row">
         <div>
           <div class="settings-row-label" id="settingsProStatus">Free</div>
-          <div class="settings-row-sub">Music Brumm Pro — $25/año</div>
+          <div class="settings-row-sub">Music Brumm Pro — $25/year</div>
         </div>
         <button onclick="document.getElementById('settingsBg').classList.remove('show');document.getElementById('modalBg').classList.add('show')"
           style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">
@@ -404,18 +404,18 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       </div>
       <div class="settings-row">
         <div><div class="settings-row-label">Versión</div></div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">1.0.0</div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);">4.0.0</div>
       </div>
       <div class="settings-row" style="cursor:pointer;" onclick="checkForUpdates()">
-        <div><div class="settings-row-label">Buscar actualización</div><div class="settings-row-sub">Verifica si hay una versión nueva</div></div>
+        <div><div class="settings-row-label">Check for updates</div><div class="settings-row-sub">Check for a new version.</div></div>
         <span id="updateStatus" style="font-size:11px;color:var(--text3);">→</span>
       </div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Biblioteca</div>
+      <div class="settings-label">Library</div>
       <div class="settings-row" style="cursor:pointer;" onclick="clearLibrary()">
-        <div><div class="settings-row-label" style="color:#CC3333;">Limpiar biblioteca</div><div class="settings-row-sub">Elimina todas las fuentes cargadas</div></div>
+        <div><div class="settings-row-label" style="color:#CC3333;">Clean up library</div><div class="settings-row-sub">Remove all loaded media</div></div>
         <span style="color:var(--text3);font-size:12px;">→</span>
       </div>
     </div>
@@ -428,24 +428,25 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')">✕</button>
     <div style="font-size:22px;margin-bottom:4px;">✦</div>
     <h2>Music Brumm Pro</h2>
-    <div style="font-size:12px;color:var(--text2);">Un pago al año. Sin suscripción mensual.</div>
+    <div style="font-size:12px;color:var(--text2);">One annual payment. No monthly subscription.</div>
     <div class="price">$25 <span>/ año</span></div>
     <ul>
-      <li>Catálogo completo Jamendo — +500,000 tracks libres</li>
-      <li>Búsqueda por artista, canción y género</li>
-      <li>Novedades y selecciones editoriales</li>
-      <li>Playlists guardadas</li>
-      <li>Ecualizador avanzado con presets personalizados</li>
+      <li>+500,000 new tracks</li>
+      <li>Search by artist, song, and genre</li>
+      <li>New releases and editorial selections in music and video</li>
+      <li>Saved playlists</li>
+      <li>Advanced equalizer with custom presets</li>
+      <li>Runs Locally - No data Shared</li>
     </ul>
-    <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activar Pro — $25/año →</button>
+    <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activate Pro — $25/year →</button>
     <div style="margin-top:12px;text-align:center;">
-      <span style="font-size:11px;color:var(--text3);">¿Ya tienes una licencia? </span>
-      <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Ingresar clave →</button>
+      <span style="font-size:11px;color:var(--text3);">Do you already have a license?</span>
+      <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Enter license key →</button>
     </div>
     <div id="licenseInputWrap" style="display:none;margin-top:10px;gap:6px;">
       <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX"
         style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--mono);outline:none;width:100%;margin-bottom:6px;">
-      <button onclick="activateLicense()" style="width:100%;padding:8px 12px;background:var(--pro);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font);">Activar licencia</button>
+      <button onclick="activateLicense()" style="width:100%;padding:8px 12px;background:var(--pro);color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:var(--font);">Activate license</button>
     </div>
   </div>
 </div>
