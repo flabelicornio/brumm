@@ -185,11 +185,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <div class="topbar">
   <div class="logo">
     <img src="/icon-192.png" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px;">
-    Video | Music <span style="font-weight:300">Brumm</span>
+    Music <span style="font-weight:300">Brumm</span>
   </div>
   <div class="topbar-right">
     <button class="pro-chip" id="proBtn">✦ Pro</button>
-    <button class="settings-btn" id="settingsBtn" onclick="document.getElementById('settingsBg').classList.add('show')" title="Ajustes">⚙</button>
+    <button class="settings-btn" id="settingsBtn" onclick="document.getElementById('settingsBg').classList.add('show')" title="Settings">⚙</button>
   </div>
 </div>
 
@@ -198,7 +198,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <div class="source-bar">
     <button class="src active" id="src-folder" onclick="activateSource(this,'folder')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Folders
+      Carpeta
     </button>
     <button class="src" id="src-usb" onclick="activateSource(this,'usb')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="1.5" width="6" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M8 9.5V14M5.5 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="5" r=".8" fill="currentColor"/><circle cx="9" cy="7" r=".8" fill="currentColor"/></svg>
@@ -206,11 +206,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </button>
     <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Musics ✦
+      Jamendo ✦
     </button>
     <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Videos ✦
+      Archive ✦
     </button>
   </div>
 
@@ -223,9 +223,9 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <div class="np-format" id="npFormat">—</div>
       </div>
       <div class="np-actions">
-        <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorite">♡</button>
+        <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorito">♡</button>
         <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Lyrics">♩</button>
-        <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Play List">≡</button>
+        <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Cola">≡</button>
       </div>
     </div>
 
@@ -248,11 +248,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     <div class="prog-times"><span id="timeCur">0:00</span><span id="timeDur">0:00</span></div>
 
     <div class="controls">
-      <button class="ctrl" id="shuffleBtn" onclick="toggleShuffle()" title="Shuffle">⇄</button>
-      <button class="ctrl" onclick="prevTrack()" title="Prev.">⏮</button>
+      <button class="ctrl" id="shuffleBtn" onclick="toggleShuffle()" title="Aleatorio">⇄</button>
+      <button class="ctrl" onclick="prevTrack()" title="Anterior">⏮</button>
       <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
-      <button class="ctrl" onclick="nextTrack()" title="Next">⏭</button>
-      <button class="ctrl" id="repeatBtn" onclick="cycleRepeat()" title="Repeat">↻</button>
+      <button class="ctrl" onclick="nextTrack()" title="Siguiente">⏭</button>
+      <button class="ctrl" id="repeatBtn" onclick="cycleRepeat()" title="Repetir">↻</button>
     </div>
 
     <div class="vol-row">
@@ -269,7 +269,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <button onclick="toggleLyrics()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text3);">✕</button>
     </div>
     <div class="lyrics-body" id="lyricsBody">
-      <div class="lyrics-empty">Play a track to see see Lyrics available</div>
+      <div class="lyrics-empty">Play a track to see Lyrics available</div>
     </div>
   </div>
 
@@ -304,7 +304,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 
   <button class="open-btn" onclick="openFolder()">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-    Open Folder — audio / video
+    Add a Folder / USB / SD
   </button>
 
   <!-- CATALOG PANEL — hidden until Pro activated -->
@@ -313,10 +313,10 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <div class="tabs">
         <button class="tab active" id="ctab-search" onclick="switchCatalogTab('search')">Search</button>
         <button class="tab" id="ctab-genres" onclick="switchCatalogTab('genres')">Genre</button>
-        <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Catalog</button>
+        <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Latest</button>
       </div>
       <div style="padding:10px 14px;display:flex;gap:6px;" id="catalogSearchRow">
-        <input type="text" id="catalogSearch" placeholder="Search artists or songs…"
+        <input type="text" id="catalogSearch" placeholder="Search artist or song…"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchJamendo()">
         <button onclick="searchJamendo()"
@@ -342,7 +342,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <div id="archiveCatGrid" style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
       <!-- Search row -->
       <div style="padding:10px 14px;display:flex;gap:6px;" id="archiveSearchRow" style="display:none;">
-        <input type="text" id="archiveSearch" placeholder="Título, director, año…"
+        <input type="text" id="archiveSearch" placeholder="Title, director, year…"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchArchive()">
         <button onclick="searchArchive()"
@@ -385,7 +385,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <button class="toggle-sw" id="sw-dark" onclick="toggleDarkMode(this)"></button>
       </div>
       <div class="settings-row">
-        <div><div class="settings-row-label">Visualizer</div><div class="settings-row-sub">Frequency bars on the player</div></div>
+        <div><div class="settings-row-label">Visualizador</div><div class="settings-row-sub">Frequency bars on the player</div></div>
         <button class="toggle-sw on" id="sw-viz" onclick="toggleSetting(this,'viz')"></button>
       </div>
     </div>
@@ -395,7 +395,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <div class="settings-row">
         <div>
           <div class="settings-row-label" id="settingsProStatus">Free</div>
-          <div class="settings-row-sub">Music Brumm Pro — $25/year</div>
+          <div class="settings-row-sub">Video | Music Brumm Pro — $25/year</div>
         </div>
         <button onclick="document.getElementById('settingsBg').classList.remove('show');document.getElementById('modalBg').classList.add('show')"
           style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">
@@ -427,7 +427,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <div class="modal">
     <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')">✕</button>
     <div style="font-size:22px;margin-bottom:4px;">✦</div>
-    <h2>Music Brumm Pro</h2>
+    <h2>Video | Music Brumm Pro</h2>
     <div style="font-size:12px;color:var(--text2);">One annual payment. No monthly subscription.</div>
     <div class="price">$25 <span>/ year</span></div>
     <ul>
@@ -435,12 +435,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <li>Search by artist, song, and genre</li>
       <li>New releases and editorial selections in music and video</li>
       <li>Saved playlists</li>
-      <li>Advanced equalizer with custom presets</li>
-      <li>Runs Locally - No data Shared</li>
+      <li>Equalizer avanzado con presets personalizados</li>
     </ul>
     <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activate Pro — $25/year →</button>
     <div style="margin-top:12px;text-align:center;">
-      <span style="font-size:11px;color:var(--text3);">Do you already have a license?</span>
+      <span style="font-size:11px;color:var(--text3);">Do you already have a license? </span>
       <button onclick="showLicenseInput()" style="font-size:11px;color:var(--pro);background:none;border:none;cursor:pointer;font-family:var(--font);">Enter license key →</button>
     </div>
     <div id="licenseInputWrap" style="display:none;margin-top:10px;gap:6px;">
@@ -563,7 +562,7 @@ async function openFolder() {
     toast(`${newTracks.length} pistas cargadas`);
     if (library.length === newTracks.length) loadTrack(0);
   } catch(e) {
-    if (e.name !== 'AbortError') toast('Error al leer la carpeta');
+    if (e.name !== 'AbortError') toast('Error reading folder');
   }
 }
 
@@ -671,7 +670,7 @@ async function loadTrack(idx) {
       playFrom(0);
       if (lyricsVisible) fetchLyrics(t.artist, t.name);
     } catch(e) {
-      toast('No se pudo decodificar el archivo');
+      toast('Could not decode file');
       document.getElementById('playBtn').classList.remove('loading');
       document.getElementById('playBtn').textContent = '▶';
     }
@@ -767,7 +766,7 @@ function nextTrack() {
 function toggleShuffle() {
   shuffle = !shuffle;
   document.getElementById('shuffleBtn').classList.toggle('on', shuffle);
-  toast(shuffle ? 'Aleatorio activado' : 'Aleatorio desactivado');
+  toast(shuffle ? 'Shuffle on' : 'Shuffle off');
 }
 
 function cycleRepeat() {
@@ -776,7 +775,7 @@ function cycleRepeat() {
   const labels = ['↻','↻¹','↻'];
   btn.textContent = labels[repeatMode];
   btn.classList.toggle('on', repeatMode > 0);
-  const msgs = ['Repetición desactivada','Repetir pista','Repetir todo'];
+  const msgs = ['Repeat off','Repeat track','Repeat all'];
   toast(msgs[repeatMode]);
 }
 
@@ -893,7 +892,7 @@ function toggleEQ() {
     document.getElementById('playBtn').textContent = '⏸';
     resumeViz();
   }
-  toast(eqEnabled ? 'EQ activado' : 'EQ bypass');
+  toast(eqEnabled ? 'EQ on' : 'EQ bypassed');
 }
 
 // ── WAVEFORM VISUALIZER ───────────────────────────────────
@@ -1093,7 +1092,7 @@ function removeFromQueue(qi) {
   queue.splice(qi, 1);
   if (curIdx >= queue.length) curIdx = Math.max(0, queue.length - 1);
   renderQueue();
-  toast('Pista eliminada de la cola');
+  toast('Track removed from queue');
 }
 
 function removeFolder(fi) {
@@ -1104,7 +1103,7 @@ function removeFolder(fi) {
   queue = library.map((_,i) => i);
   curIdx = 0;
   renderPanel();
-  toast('Fuente eliminada');
+  toast('Source removed');
 }
 
 function clearLibrary() {
@@ -1112,12 +1111,12 @@ function clearLibrary() {
   library = []; queue = []; folderMap = []; folders = []; curIdx = 0;
   if (isPlaying) pausePlayback();
   audioBuffer = null;
-  document.getElementById('npTitle').textContent = 'Sin pista';
+  document.getElementById('npTitle').textContent = 'No track';
   document.getElementById('npArtist').textContent = 'Abre una carpeta para comenzar';
   document.getElementById('npFormat').textContent = '—';
   renderPanel();
   document.getElementById('settingsBg').classList.remove('show');
-  toast('Biblioteca limpiada');
+  toast('Library cleared');
 }
 
 // ── SETTINGS ─────────────────────────────────────────────
@@ -1157,7 +1156,7 @@ function toggleDarkMode(btn) {
     r.style.setProperty('--border','#E4E2DD');
     r.style.setProperty('--border2','#D0CEC9');
   }
-  toast(on ? 'Modo oscuro activado' : 'Modo claro activado');
+  toast(on ? 'Dark mode activado' : 'Light mode on');
 }
 
 // ── INIT ──────────────────────────────────────────────────
@@ -1322,7 +1321,7 @@ function renderCatalog() {
 async function playJamendoTrack(idx) {
   if (AC.state === 'suspended') AC.resume();
   const t = jamendoResults[idx];
-  if (!t || !t.audio) { toast('Track sin URL de stream'); return; }
+  if (!t || !t.audio) { toast('No stream URL found'); return; }
   if (isPlaying) pausePlayback();
   pausedAt = 0;
   catalogSource = t;
@@ -1354,7 +1353,7 @@ async function playJamendoTrack(idx) {
     playFrom(0);
     if (lyricsVisible) fetchLyrics(t.artist_name, t.name);
   } catch(e) {
-    toast('No se pudo cargar este track');
+    toast('Could not load this track');
     document.getElementById('playBtn').classList.remove('loading');
     document.getElementById('playBtn').textContent = '▶';
   }
@@ -1374,22 +1373,31 @@ async function playJamendoTrack(idx) {
 function checkForUpdates() {
   const status = document.getElementById('updateStatus');
   status.textContent = '…';
-  if (!('serviceWorker' in navigator)) {
-    status.textContent = 'No disponible';
-    return;
-  }
+  if (!('serviceWorker' in navigator)) { status.textContent = 'No disponible'; return; }
   navigator.serviceWorker.getRegistration().then(reg => {
-    if (!reg) { status.textContent = 'No instalado'; return; }
+    if (!reg) {
+      // No hay SW registrado — recarga forzada
+      status.textContent = 'Recargando…';
+      window.location.reload(true);
+      return;
+    }
     reg.update().then(() => {
       if (reg.waiting) {
-        // Nueva versión lista — pedimos que tome control
-        status.textContent = '¡Nueva versión!';
-        toast('Nueva versión disponible — recargando…');
-        setTimeout(() => {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-          window.location.reload();
-        }, 1500);
+        reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+        status.textContent = '↻ Actualizando…';
+        toast('Actualizando — recargando en 2 segundos…');
+        setTimeout(() => window.location.reload(true), 2000);
+      } else if (reg.installing) {
+        status.textContent = '↻ Instalando…';
+        toast('Instalando actualización…');
+        reg.installing.addEventListener('statechange', ev => {
+          if (ev.target.state === 'installed') {
+            ev.target.postMessage({ type: 'SKIP_WAITING' });
+            setTimeout(() => window.location.reload(true), 1500);
+          }
+        });
       } else {
+        // Forzar recarga hard para asegurarnos
         status.textContent = '✓ Al día';
         toast('Ya tienes la versión más reciente');
         setTimeout(() => status.textContent = '→', 3000);
@@ -1677,13 +1685,13 @@ async function playArchiveTrack(idx) {
       document.getElementById('playBtn').textContent = '⏸';
       updateMediaSessionState(true);
     }).catch(() => {
-      toast('No se pudo reproducir — intenta otro título');
+      toast('Could not play — try another title');
       document.getElementById('playBtn').classList.remove('loading');
       document.getElementById('playBtn').textContent = '▶';
     });
     renderArchiveResults();
   } catch(e) {
-    toast('Error al obtener el video');
+    toast('Error fetching video');
     document.getElementById('playBtn').classList.remove('loading');
     document.getElementById('playBtn').textContent = '▶';
   }
