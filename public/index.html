@@ -185,7 +185,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 <div class="topbar">
   <div class="logo">
     <img src="/icon-192.png" width="28" height="28" style="border-radius:7px;vertical-align:middle;margin-right:8px;">
-    Music <span style="font-weight:300">Brumm</span>
+    Video | Music <span style="font-weight:300">Brumm</span>
   </div>
   <div class="topbar-right">
     <button class="pro-chip" id="proBtn">✦ Pro</button>
@@ -198,7 +198,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   <div class="source-bar">
     <button class="src active" id="src-folder" onclick="activateSource(this,'folder')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Carpeta
+      Folder
     </button>
     <button class="src" id="src-usb" onclick="activateSource(this,'usb')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="1.5" width="6" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M8 9.5V14M5.5 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="5" r=".8" fill="currentColor"/><circle cx="9" cy="7" r=".8" fill="currentColor"/></svg>
@@ -206,11 +206,11 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
     </button>
     <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Jamendo ✦
+      Music Stream ✦
     </button>
     <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Archive ✦
+      Video Stream ✦
     </button>
   </div>
 
@@ -435,7 +435,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <li>Search by artist, song, and genre</li>
       <li>New releases and editorial selections in music and video</li>
       <li>Saved playlists</li>
-      <li>Equalizer avanzado con presets personalizados</li>
+      <li>Advanced equalizer with custom presets</li>
     </ul>
     <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pago…')">Activate Pro — $25/year →</button>
     <div style="margin-top:12px;text-align:center;">
@@ -1191,7 +1191,7 @@ function activateLicense() {
   try { localStorage.setItem('brumm_pro_key', key); } catch(e) {}
   applyProUI();
   document.getElementById('modalBg').classList.remove('show');
-  document.getElementById('settingsProStatus').textContent = '✦ Pro activo';
+  document.getElementById('settingsProStatus').textContent = '✦ Pro active';
   toast('¡Pro activado! Bienvenido.');
 }
 
@@ -1199,7 +1199,7 @@ function applyProUI() {
   isPro = true;
   document.getElementById('proBtn').textContent = '✦ Pro activo';
   document.getElementById('proBtn').style.background = '#16a34a';
-  document.getElementById('settingsProStatus').textContent = '✦ Pro activo';
+  document.getElementById('settingsProStatus').textContent = '✦ Pro active';
 }
 const JAMENDO = 'https://api.jamendo.com/v3.0';
 const GENRES = ['lounge','classical','electronic','jazz','pop','rock','hiphop','relaxation','songwriter','world','metal','soundtrack'];
@@ -1294,7 +1294,7 @@ function setCatalogError() {
 function renderCatalog() {
   const body = document.getElementById('catalogBody');
   if (!jamendoResults.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Prueba con otro término o género</div>';
+    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Try another term or genre</div>';
     return;
   }
   const playAllBtn = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);">
@@ -1519,14 +1519,14 @@ function stopLRCSync() {
 
 // ── INTERNET ARCHIVE ─────────────────────────────────────
 const ARCHIVE_CATS = [
-  { label:'🎬 Cine clásico',  q:'mediatype:movies subject:"feature film" year:[1900 TO 1970]', sort:'downloads desc' },
-  { label:'🎥 Documentales',  q:'mediatype:movies subject:documentary',                        sort:'downloads desc' },
-  { label:'🎵 Conciertos',    q:'mediatype:movies subject:concert',                             sort:'downloads desc' },
-  { label:'📺 Noticieros',    q:'mediatype:movies subject:news',                                sort:'date desc' },
-  { label:'🎞 Cortometrajes', q:'mediatype:movies subject:"short film"',                       sort:'downloads desc' },
-  { label:'🎭 Animación',     q:'mediatype:movies subject:animation OR subject:cartoon',        sort:'downloads desc' },
-  { label:'📡 TV clásica',    q:'mediatype:movies subject:television',                          sort:'downloads desc' },
-  { label:'🔬 Ciencia',       q:'mediatype:movies subject:science OR subject:nature',           sort:'downloads desc' },
+  { label:'🎬 Classic cinema',  q:'mediatype:movies subject:"feature film" year:[1900 TO 1970]', sort:'downloads desc' },
+  { label:'🎥 Documentaries',  q:'mediatype:movies subject:documentary',                        sort:'downloads desc' },
+  { label:'🎵 Concerts',    q:'mediatype:movies subject:concert',                             sort:'downloads desc' },
+  { label:'📺 Newscasts',    q:'mediatype:movies subject:news',                                sort:'date desc' },
+  { label:'🎞 Short Films', q:'mediatype:movies subject:"short film"',                       sort:'downloads desc' },
+  { label:'🎭 Animation',     q:'mediatype:movies subject:animation OR subject:cartoon',        sort:'downloads desc' },
+  { label:'📡 Classic TV',    q:'mediatype:movies subject:television',                          sort:'downloads desc' },
+  { label:'🔬 Science',       q:'mediatype:movies subject:science OR subject:nature',           sort:'downloads desc' },
 ];
 
 let archiveTab = 'cats';
@@ -1550,7 +1550,7 @@ function switchArchiveTab(tab) {
     catGrid.style.display = 'none';
     searchRow.style.display = 'flex';
     body.style.display = 'block';
-    body.innerHTML = '<div class="empty-state">Escribe algo para buscar en Archive.org</div>';
+    body.innerHTML = '<div class="empty-state">Type something to search the repository.</div>';
   }
 }
 
@@ -1601,7 +1601,7 @@ async function fetchArchive(query, sort) {
 function renderArchiveResults() {
   const body = document.getElementById('archiveBody');
   if (!archiveResults.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Prueba con otra búsqueda</div>';
+    body.innerHTML = '<div class="empty-state"><strong>No results</strong>Prueba con otra búsqueda</div>';
     return;
   }
   const header = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;">
