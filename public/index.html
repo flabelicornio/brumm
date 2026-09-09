@@ -1192,7 +1192,7 @@ function activateLicense() {
   applyProUI();
   document.getElementById('modalBg').classList.remove('show');
   document.getElementById('settingsProStatus').textContent = '✦ Pro active';
-  toast('¡Pro activado! Bienvenido.');
+  toast('¡Pro activated! Welcome.');
 }
 
 function applyProUI() {
@@ -1283,18 +1283,18 @@ async function searchJamendo(query, isGenre) {
 
 function setCatalogLoading() {
   document.getElementById('catalogBody').innerHTML =
-    '<div class="empty-state"><strong>Buscando…</strong>Consultando catálogo Jamendo</div>';
+    '<div class="empty-state"><strong>Buscando…</strong>Checking catalog</div>';
 }
 
 function setCatalogError() {
   document.getElementById('catalogBody').innerHTML =
-    '<div class="empty-state"><strong>Error de conexión</strong>Verifica tu internet e intenta de nuevo</div>';
+    '<div class="empty-state"><strong>Connection error</strong>Check your internet connection and try again</div>';
 }
 
 function renderCatalog() {
   const body = document.getElementById('catalogBody');
   if (!jamendoResults.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Sin resultados</strong>Try another term or genre</div>';
+    body.innerHTML = '<div class="empty-state"><strong>No results</strong>Try another term or genre</div>';
     return;
   }
   const playAllBtn = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);">
