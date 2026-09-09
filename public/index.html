@@ -975,7 +975,7 @@ function renderQueue() {
 function renderLibrary() {
   const body = document.getElementById('panelBody');
   if (!library.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Biblioteca vacía</strong>Agrega carpetas para ver tu música aquí</div>';
+    body.innerHTML = '<div class="empty-state"><strong>Empty library</strong>Add folders to view your music or videos here.</div>';
     return;
   }
   const sorted = [...library].sort((a,b)=>a.artist.localeCompare(b.artist));
@@ -994,7 +994,7 @@ function renderLibrary() {
 function renderFolders() {
   const body = document.getElementById('panelBody');
   if (!folders.length) {
-    body.innerHTML = '<div class="empty-state"><strong>Sin fuentes</strong>Agrega carpetas o conecta una unidad USB</div>';
+    body.innerHTML = '<div class="empty-state"><strong>No sources</strong>Add folders or connect a USB drive</div>';
     return;
   }
   body.innerHTML = folders.map((f,i) => `
