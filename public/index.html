@@ -319,6 +319,12 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <input type="text" id="catalogSearch" placeholder="Search artist or song…"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchJamendo()">
+        <select id="jamendoPageSize" onchange="searchJamendo()"
+          style="padding:7px 6px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--surface);color:var(--text);cursor:pointer;outline:none;">
+          <option value="30">30</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
         <button onclick="searchJamendo()"
           style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
@@ -345,6 +351,12 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
         <input type="text" id="archiveSearch" placeholder="Title, director, year…"
           style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);outline:none;"
           onkeydown="if(event.key==='Enter')searchArchive()">
+        <select id="archivePageSize"
+          style="padding:7px 6px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--font);background:var(--surface);color:var(--text);cursor:pointer;outline:none;">
+          <option value="30">30</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
         <button onclick="searchArchive()"
           style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
@@ -1207,6 +1219,10 @@ let catalogTab = 'search';
 let jamendoResults = [];
 let catalogSource = null;
 let curJamendoIdx = 0;
+let jamendoPage = 1;
+let jamendoLastQuery = '';
+let jamendoLastIsGenre = false;
+let jamendoHasMore = true;
 
 function activateSource(btn, src) {
   document.querySelectorAll('.src').forEach(b => b.classList.remove('active'));
@@ -1254,29 +1270,50 @@ function searchByGenre(genre) {
 }
 
 async function loadJamendoNew() {
+  jamendoPage = 1; jamendoResults = []; jamendoHasMore = true;
+  jamendoLastQuery = ''; jamendoLastIsGenre = false;
   setCatalogLoading();
+  const limit = document.getElementById('jamendoPageSize')?.value || 30;
   try {
-    const url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=30&order=releasedate_desc&include=musicinfo&imagesize=100`;
+    const url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=${limit}&offset=0&order=releasedate_desc&include=musicinfo&imagesize=100`;
     const data = await (await fetch(url)).json();
     jamendoResults = data.results || [];
+    jamendoHasMore = jamendoResults.length >= limit;
     renderCatalog();
   } catch(e) { setCatalogError(); }
 }
 
 async function searchJamendo(query, isGenre) {
   const q = query !== undefined ? query : document.getElementById('catalogSearch').value.trim();
+  const limit = parseInt(document.getElementById('jamendoPageSize')?.value || 30);
+  jamendoPage = 1; jamendoResults = []; jamendoHasMore = true;
+  jamendoLastQuery = q; jamendoLastIsGenre = !!isGenre;
   setCatalogLoading();
+  await _fetchJamendo(q, isGenre, 1, limit, false);
+}
+
+async function loadMoreJamendo() {
+  const limit = parseInt(document.getElementById('jamendoPageSize')?.value || 30);
+  jamendoPage++;
+  await _fetchJamendo(jamendoLastQuery, jamendoLastIsGenre, jamendoPage, limit, true);
+}
+
+async function _fetchJamendo(q, isGenre, page, limit, append) {
+  const offset = (page - 1) * limit;
   try {
     let url;
-    if (isGenre) {
-      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&tags=${encodeURIComponent(q)}&featured=1&groupby=artist_id&include=musicinfo&imagesize=100`;
+    if (isGenre && q) {
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=${limit}&offset=${offset}&tags=${encodeURIComponent(q)}&featured=1&groupby=artist_id&include=musicinfo&imagesize=100`;
     } else if (q) {
-      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&search=${encodeURIComponent(q)}&include=musicinfo&imagesize=100`;
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=${limit}&offset=${offset}&search=${encodeURIComponent(q)}&include=musicinfo&imagesize=100`;
     } else {
-      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=40&order=popularity_total&featured=1&include=musicinfo&imagesize=100`;
+      url = `${JAMENDO}/tracks/?client_id=${JAMENDO_ID}&format=json&limit=${limit}&offset=${offset}&order=popularity_total&featured=1&include=musicinfo&imagesize=100`;
     }
     const data = await (await fetch(url)).json();
-    jamendoResults = data.results || [];
+    const results = data.results || [];
+    if (append) jamendoResults = [...jamendoResults, ...results];
+    else jamendoResults = results;
+    jamendoHasMore = results.length >= limit;
     renderCatalog();
   } catch(e) { setCatalogError(); }
 }
@@ -1300,20 +1337,28 @@ function renderCatalog() {
   const playAllBtn = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);">
     <button onclick="playJamendoTrack(0)"
       style="width:100%;padding:8px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);">
-      ▶ Reproducir todo (${jamendoResults.length} pistas)
+      ▶ Play all (${jamendoResults.length} tracks)
     </button>
   </div>`;
-  body.innerHTML = playAllBtn + jamendoResults.map((t,i) => `
-    <div class="track-row${catalogSource && curJamendoIdx===i?' active':''}" onclick="playJamendoTrack(${i})">
-      <div class="tr-n${catalogSource && curJamendoIdx===i?' playing':''}">${catalogSource && curJamendoIdx===i?'♪':i+1}</div>
+  const loadMoreBtn = jamendoHasMore ? `
+    <div style="padding:10px 14px;text-align:center;">
+      <button onclick="loadMoreJamendo()"
+        style="padding:7px 24px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">
+        Load more…
+      </button>
+    </div>` : `<div style="padding:10px;text-align:center;font-size:11px;color:var(--text3);">End of results</div>`;
+  body.innerHTML = playAllBtn + jamendoResults.map((t,i) => {
+    const active = catalogSource && curJamendoIdx===i;
+    return `<div class="track-row${active?' active':''}" onclick="playJamendoTrack(${i})">
+      <div class="tr-n${active?' playing':''}">${active?'♪':i+1}</div>
       ${t.image ? `<img src="${t.image}" width="32" height="32" style="border-radius:5px;flex-shrink:0;object-fit:cover;" onerror="this.style.display='none'">` : ''}
       <div class="tr-info">
-        <div class="tr-title${catalogSource && curJamendoIdx===i?' playing':''}">${esc(t.name)}</div>
+        <div class="tr-title${active?' playing':''}">${esc(t.name)}</div>
         <div class="tr-sub">${esc(t.artist_name)}</div>
       </div>
       <div class="tr-dur">${fmtTime(t.duration)}</div>
-    </div>`).join('');
-  // scroll active into view
+    </div>`;
+  }).join('') + loadMoreBtn;
   const activeEl = body.querySelector('.track-row.active');
   if (activeEl) activeEl.scrollIntoView({block:'nearest'});
 }
@@ -1533,6 +1578,10 @@ let archiveTab = 'cats';
 let archiveResults = [];
 let curArchiveIdx = 0;
 let archiveSource = null;
+let archivePage = 1;
+let archiveLastQuery = '';
+let archiveLastSort = 'downloads desc';
+let archiveHasMore = true;
 
 function switchArchiveTab(tab) {
   archiveTab = tab;
@@ -1571,8 +1620,9 @@ async function loadArchiveCat(idx) {
   document.getElementById('archiveCatGrid').style.display = 'none';
   const body = document.getElementById('archiveBody');
   body.style.display = 'block';
-  body.innerHTML = `<div class="empty-state"><strong>Cargando ${cat.label}…</strong></div>`;
-  await fetchArchive(cat.q, cat.sort);
+  body.innerHTML = `<div class="empty-state"><strong>Loading ${cat.label}…</strong></div>`;
+  archivePage = 1; archiveResults = []; archiveHasMore = true;
+  await fetchArchive(cat.q, cat.sort, false);
 }
 
 async function searchArchive() {
@@ -1580,37 +1630,60 @@ async function searchArchive() {
   if (!q) return;
   const body = document.getElementById('archiveBody');
   body.style.display = 'block';
-  body.innerHTML = '<div class="empty-state"><strong>Buscando…</strong></div>';
-  await fetchArchive(`mediatype:movies AND (title:(${q}) OR creator:(${q}))`, 'downloads desc');
+  body.innerHTML = '<div class="empty-state"><strong>Searching…</strong></div>';
+  archivePage = 1; archiveResults = []; archiveHasMore = true;
+  await fetchArchive(`mediatype:movies AND (title:(${q}) OR creator:(${q}))`, 'downloads desc', false);
 }
 
-async function fetchArchive(query, sort) {
+async function fetchArchive(query, sort, append) {
+  const rows = parseInt(document.getElementById('archivePageSize')?.value || 30);
+  const page = append ? archivePage : 1;
+  archiveLastQuery = query;
+  archiveLastSort = sort;
   try {
     const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}`
       + `&fl[]=identifier,title,creator,year,description,runtime,downloads`
-      + `&sort[]=${encodeURIComponent(sort)}&rows=30&page=1&output=json`;
+      + `&sort[]=${encodeURIComponent(sort)}&rows=${rows}&page=${page}&output=json`;
     const data = await (await fetch(url)).json();
-    archiveResults = (data.response?.docs || []).filter(d => d.identifier);
+    const results = (data.response?.docs || []).filter(d => d.identifier);
+    if (append) archiveResults = [...archiveResults, ...results];
+    else archiveResults = results;
+    archiveHasMore = results.length >= rows;
     renderArchiveResults();
   } catch(e) {
     document.getElementById('archiveBody').innerHTML =
-      '<div class="empty-state"><strong>Error de conexión</strong>Verifica tu internet</div>';
+      '<div class="empty-state"><strong>Connection error</strong>Check your internet</div>';
   }
+}
+
+async function loadMoreArchive() {
+  archivePage++;
+  const body = document.getElementById('archiveBody');
+  const btn = body.querySelector('.load-more-btn');
+  if (btn) btn.textContent = 'Loading…';
+  await fetchArchive(archiveLastQuery, archiveLastSort, true);
 }
 
 function renderArchiveResults() {
   const body = document.getElementById('archiveBody');
   if (!archiveResults.length) {
-    body.innerHTML = '<div class="empty-state"><strong>No results</strong>Prueba con otra búsqueda</div>';
+    body.innerHTML = '<div class="empty-state"><strong>No results</strong>Try a different search</div>';
     return;
   }
   const header = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;">
     <button onclick="backToArchiveCats()"
-      style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">← Volver</button>
+      style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">← Back</button>
     <button onclick="playArchiveTrack(0)"
       style="flex:1;padding:5px 10px;background:var(--text);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);">
-      ▶ Reproducir todo (${archiveResults.length})</button>
+      ▶ Play all (${archiveResults.length})</button>
   </div>`;
+  const loadMoreBtn = archiveHasMore ? `
+    <div style="padding:10px 14px;text-align:center;">
+      <button class="load-more-btn" onclick="loadMoreArchive()"
+        style="padding:7px 24px;border:1px solid var(--border);border-radius:8px;font-size:12px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">
+        Load more…
+      </button>
+    </div>` : `<div style="padding:10px;text-align:center;font-size:11px;color:var(--text3);">End of results</div>`;
   body.innerHTML = header + archiveResults.map((item, i) => {
     const thumb = `https://archive.org/services/img/${item.identifier}`;
     const year = item.year ? ` · ${item.year}` : '';
@@ -1626,7 +1699,7 @@ function renderArchiveResults() {
       </div>
       ${item.runtime?`<div class="tr-dur">${item.runtime}</div>`:''}
     </div>`;
-  }).join('');
+  }).join('') + loadMoreBtn;
 }
 
 function backToArchiveCats() {
@@ -1719,7 +1792,7 @@ document.addEventListener('click', e => {
   box-shadow:0 8px 32px rgba(0,0,0,.12);
   opacity:0;pointer-events:none;transform:translateY(8px);
   transition:all .2s;z-index:200;
-">
+" class="" id="aboutPopupEl">
   <div style="font-size:14px;font-weight:500;margin-bottom:6px;">Brumm — Music Player</div>
   <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
     Free audio and video player. Runs locally, no external dependencies. Supports streaming from public online repositories.
@@ -1739,7 +1812,7 @@ document.addEventListener('click', e => {
 </div>
 
 <style>
-#aboutPopup.show{opacity:1!important;pointer-events:all!important;transform:translateY(0)!important;}
+#aboutPopupEl.show{opacity:1!important;pointer-events:all!important;transform:translateY(0)!important;}
 .about-footer{position:fixed;bottom:0;left:0;right:0;text-align:center;padding:6px;background:var(--bg);border-top:1px solid var(--border);z-index:100;}
 </style>
 
@@ -1747,7 +1820,7 @@ document.addEventListener('click', e => {
 <div class="about-footer">
   <button id="aboutBtn" onclick="toggleAbout()"
     style="background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;font-family:var(--font);">
-    About Brumm · v4.0.0
+    Brumm · indplaneta.com · v4.0.0
   </button>
 </div>
 
