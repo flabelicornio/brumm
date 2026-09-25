@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111110">
+<meta name="theme-color" content="#000000">
 <title>Video | Music Brumm</title>
   <!-- Favicon / Icono de la pestaña -->
   <link rel="icon" type="image/png" href="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
@@ -44,7 +44,7 @@ body{display:flex;flex-direction:column;align-items:center;overflow-x:hidden;pad
 /* ── SOURCE BAR ── */
 .source-bar{display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;}
 .src{padding:8px 4px;border:1px solid var(--border);border-radius:var(--r2);background:var(--surface);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;text-align:center;transition:all .15s;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:4px;box-sizing:border-box;}
-.src.active{background:var(--text);color:#111;border-color:var(--text);}
+.src.active{background:var(--text);color:#000;border-color:var(--text);}
 .src:hover:not(.active){background:var(--surface2);}
 .src svg{flex-shrink:0;}
 
@@ -77,7 +77,7 @@ body{display:flex;flex-direction:column;align-items:center;overflow-x:hidden;pad
 .ctrl{width:36px;height:36px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .12s;font-size:16px;color:var(--text2);font-family:var(--font);}
 .ctrl:hover{background:var(--surface2);}
 .ctrl.on{color:var(--text);}
-.play-btn{width:48px;height:48px;background:var(--text);color:#111;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .1s,background .12s;flex-shrink:0;}
+.play-btn{width:48px;height:48px;background:var(--text);color:#000;border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:transform .1s,background .12s;flex-shrink:0;}
 .play-btn:active{transform:scale(.94);}
 .play-btn.loading{background:var(--text3);}
 
@@ -117,7 +117,7 @@ input[type=range].vol::-webkit-slider-thumb{-webkit-appearance:none;width:14px;h
 .eq-title{font-size:12px;font-weight:500;color:var(--text2);}
 .eq-right{display:flex;align-items:center;gap:8px;}
 .eq-toggle{font-size:10px;font-weight:500;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;font-family:var(--font);color:var(--text2);transition:all .12s;}
-.eq-toggle.on{background:var(--text);color:#111;border-color:var(--text);}
+.eq-toggle.on{background:var(--text);color:#000;border-color:var(--text);}
 select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border);border-radius:6px;background:var(--surface);padding:3px 6px;cursor:pointer;font-family:var(--font);outline:none;}
 .eq-bands{display:flex;gap:4px;align-items:center;justify-content:space-between;}
 .eq-band{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
@@ -132,7 +132,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .open-btn:hover{border-color:var(--text3);color:var(--text);background:var(--surface);}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#111;font-size:12px;font-weight:500;padding:8px 16px;border-radius:20px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:999;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#000;font-size:12px;font-weight:500;padding:8px 16px;border-radius:20px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
 /* ── SCROLLBAR ── */
@@ -162,7 +162,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .settings-row-sub{font-size:11px;color:var(--text2);margin-top:1px;}
 .toggle-sw{width:36px;height:20px;background:var(--border2);border-radius:10px;border:none;cursor:pointer;position:relative;transition:background .15s;flex-shrink:0;}
 .toggle-sw.on{background:var(--text);}
-.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#111;border-radius:50%;transition:transform .15s;}
+.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#000;border-radius:50%;transition:transform .15s;}
 .toggle-sw.on::after{transform:translateX(16px);}
 
 /* ── TRACK ROW ACTIONS ── */
@@ -338,7 +338,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
           <option value="100">100</option>
         </select>
         <button onclick="searchJamendo()"
-          style="padding:7px 14px;background:var(--text);color:#111;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
+          style="padding:7px 14px;background:var(--text);color:#000;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
       <div id="genreBar" style="display:none;padding:10px 14px;gap:6px;flex-wrap:wrap;">
       </div>
@@ -367,7 +367,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
           <option value="100">100</option>
         </select>
         <button onclick="searchArchive()"
-          style="padding:7px 14px;background:var(--text);color:#111;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
+          style="padding:7px 14px;background:var(--text);color:#000;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
       <div class="panel-body" id="archiveBody" style="display:none;">
       </div>
@@ -934,7 +934,7 @@ function drawArt(seed) {
   const ctx = c.getContext('2d');
   const palettes = [
     ['#2A2A27','#3A3A36'],['#1C1C1A','#252523'],
-    ['#2E2E2B','#111110'],['#3A3A36','#2A2A27']
+    ['#2E2E2B','#000000'],['#3A3A36','#2A2A27']
   ];
   const [bg,fg] = palettes[seed % palettes.length];
   ctx.fillStyle = bg; ctx.fillRect(0,0,64,64);
@@ -1131,7 +1131,7 @@ function toggleSetting(btn, key) {
 
 // ── TEMAS (Oscuro por defecto) ──────────────
 const THEME_DARK = {
-  '--bg':'#111110','--surface':'#1C1C1A','--surface2':'#252523','--surface3':'#2E2E2B',
+  '--bg':'#000000','--surface':'#010101','--surface2':'#252523','--surface3':'#2E2E2B',
   '--text':'#F2F1EE','--text2':'#9B9B96','--text3':'#5A5A56',
   '--border':'#2A2A27','--border2':'#3A3A36'
 };
@@ -1325,7 +1325,7 @@ function renderCatalog() {
   }
   const playAllBtn = `<div style="padding:8px 14px;border-bottom:1px solid var(--border);">
     <button onclick="playJamendoTrack(0)"
-      style="width:100%;padding:8px;background:var(--text);color:#111;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);">
+      style="width:100%;padding:8px;background:var(--text);color:#000;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);">
       ▶ Play all (${jamendoResults.length} tracks)
     </button>
   </div>`;
@@ -1663,7 +1663,7 @@ function renderArchiveResults() {
     <button onclick="backToArchiveCats()"
       style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:11px;background:none;cursor:pointer;font-family:var(--font);color:var(--text2);">← Back</button>
     <button onclick="playArchiveTrack(0)"
-      style="flex:1;padding:5px 10px;background:var(--text);color:#111;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);">
+      style="flex:1;padding:5px 10px;background:var(--text);color:#000;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);">
       ▶ Play all (${archiveResults.length})</button>
   </div>`;
   const loadMoreBtn = archiveHasMore ? `
