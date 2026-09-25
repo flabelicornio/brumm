@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#F7F7F5">
 <title>Video | Music Brumm</title>
   <!-- Favicon / Icono de la pestaña -->
@@ -118,6 +118,39 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 .eq-band{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
 .eq-band input[type=range]{writing-mode:vertical-lr;direction:rtl;-webkit-appearance:slider-vertical;appearance:slider-vertical;width:22px;height:175px;background:transparent;cursor:pointer;outline:none;}
 .eq-band input[type=range]::-webkit-slider-runnable-track{width:3px;background:var(--surface3);border-radius:2px;}
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  html,body{font-size:15px;}
+  .app{padding:0 10px 60px;}
+  .topbar{padding:12px 12px 6px;}
+  .source-bar{gap:4px;}
+  .src{font-size:11px;padding:8px 4px;gap:3px;}
+  .src svg{display:none;}
+  .np-top{gap:10px;}
+  .artwork{width:56px;height:56px;}
+  .artwork canvas{width:56px;height:56px;}
+  .np-title{font-size:15px;}
+  .play-btn{width:52px;height:52px;font-size:18px;}
+  .ctrl{width:40px;height:40px;font-size:16px;}
+  .icon-btn{width:34px;height:34px;font-size:14px;}
+  .eq-band input[type=range]{height:110px;width:28px;}
+  .eq-bands{gap:2px;}
+  .eq-label{font-size:8px;}
+  .panel-body{max-height:200px;}
+  .track-row{padding:8px 10px;gap:8px;}
+  .tr-fmt{display:none;}
+  .tab{padding:8px 4px;font-size:11px;}
+  .nowplaying{padding:14px 12px 12px;}
+  .eq-panel{padding:12px 14px;}
+  .open-btn{padding:12px 8px;font-size:12px;}
+  .about-footer{padding:4px;}
+  .video-wrap{border-radius:8px;}
+  select.eq-preset{font-size:10px;padding:3px 4px;}
+  .vol-row{gap:6px;}
+  .controls{gap:4px;}
+  .prog-times{font-size:9px;}
+}
 .eq-band input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--text);border-radius:50%;cursor:grab;}
 .eq-label{font-size:9px;color:var(--text3);font-family:var(--mono);}
 .eq-val{font-size:9px;color:var(--text2);font-family:var(--mono);min-height:12px;}
