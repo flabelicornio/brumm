@@ -1148,33 +1148,36 @@ function toggleSetting(btn, key) {
   toast(key.charAt(0).toUpperCase() + key.slice(1) + (settingsState[key] ? ' activado' : ' desactivado'));
 }
 
-function toggleDarkMode(btn) {
-  const on = !btn.classList.contains('on');
-  btn.classList.toggle('on', on);
+// ── TEMA CLARO / OSCURO (oscuro por defecto) ──────────────
+const THEME_DARK = {
+  '--bg':'#111110','--surface':'#1C1C1A','--surface2':'#252523','--surface3':'#2E2E2B',
+  '--text':'#F2F1EE','--text2':'#9B9B96','--text3':'#5A5A56',
+  '--border':'#2A2A27','--border2':'#3A3A36'
+};
+const THEME_LIGHT = {
+  '--bg':'#F7F7F5','--surface':'#FFFFFF','--surface2':'#F2F1EE','--surface3':'#ECEAE6',
+  '--text':'#1A1A18','--text2':'#6B6B67','--text3':'#ABABAB',
+  '--border':'#E4E2DD','--border2':'#D0CEC9'
+};
+
+function applyTheme(theme) {
+  const colors = (theme === 'light') ? THEME_LIGHT : THEME_DARK;
   const r = document.documentElement;
-  if (on) {
-    r.style.setProperty('--bg','#111110');
-    r.style.setProperty('--surface','#1C1C1A');
-    r.style.setProperty('--surface2','#252523');
-    r.style.setProperty('--surface3','#2E2E2B');
-    r.style.setProperty('--text','#F2F1EE');
-    r.style.setProperty('--text2','#9B9B96');
-    r.style.setProperty('--text3','#5A5A56');
-    r.style.setProperty('--border','#2A2A27');
-    r.style.setProperty('--border2','#3A3A36');
-  } else {
-    r.style.setProperty('--bg','#F7F7F5');
-    r.style.setProperty('--surface','#FFFFFF');
-    r.style.setProperty('--surface2','#F2F1EE');
-    r.style.setProperty('--surface3','#ECEAE6');
-    r.style.setProperty('--text','#1A1A18');
-    r.style.setProperty('--text2','#6B6B67');
-    r.style.setProperty('--text3','#ABABAB');
-    r.style.setProperty('--border','#E4E2DD');
-    r.style.setProperty('--border2','#D0CEC9');
-  }
-  toast(on ? 'Dark mode activado' : 'Light mode on');
+  Object.keys(colors).forEach(k => r.style.setProperty(k, colors[k]));
+  const sw = document.getElementById('sw-dark');
+  if (sw) sw.classList.toggle('on', theme === 'dark');
+  try { localStorage.setItem('brumm_theme', theme); } catch(e) {}
 }
+
+function toggleDarkMode() {
+  const current = localStorage.getItem('brumm_theme') || 'dark';
+  const next = (current === 'dark') ? 'light' : 'dark';
+  applyTheme(next);
+  toast(next === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
+}
+
+// Aplicar el tema al cargar — por defecto oscuro
+applyTheme(localStorage.getItem('brumm_theme') || 'dark');
 
 // ── INIT ──────────────────────────────────────────────────
 buildEQUI();
