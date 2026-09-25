@@ -16,9 +16,9 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#F7F7F5;--surface:#FFFFFF;--surface2:#F2F1EE;--surface3:#ECEAE6;
-  --text:#1A1A18;--text2:#6B6B67;--text3:#ABABAB;
-  --border:#E4E2DD;--border2:#D0CEC9;
+  --bg:#000000;--surface:#0A0A0A;--surface2:#111111;--surface3:#1A1A1A;
+  --text:#F2F1EE;--text2:#888884;--text3:#444440;
+  --border:#1E1E1C;--border2:#2A2A28;
   --accent:#1A1A18;
   --pro:#2B5CE6;
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
@@ -134,7 +134,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
   .play-btn{width:52px;height:52px;font-size:18px;}
   .ctrl{width:40px;height:40px;font-size:16px;}
   .icon-btn{width:34px;height:34px;font-size:14px;}
-  .eq-band input[type=range]{height:175px;width:28px;}
+  .eq-band input[type=range]{height:110px;width:28px;}
   .eq-bands{gap:2px;}
   .eq-label{font-size:8px;}
   .panel-body{max-height:200px;}
@@ -432,7 +432,7 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
       <div class="settings-label">Interfaz</div>
       <div class="settings-row">
         <div><div class="settings-row-label">Dark mode</div><div class="settings-row-sub">Switch to dark mode</div></div>
-        <button class="toggle-sw" id="sw-dark" onclick="toggleDarkMode(this)"></button>
+        <button class="toggle-sw on" id="sw-dark" onclick="toggleDarkMode(this)"></button>
       </div>
       <div class="settings-row">
         <div><div class="settings-row-label">Visualizador</div><div class="settings-row-sub">Frequency bars on the player</div></div>
@@ -1186,15 +1186,15 @@ function toggleDarkMode(btn) {
   btn.classList.toggle('on', on);
   const r = document.documentElement;
   if (on) {
-    r.style.setProperty('--bg','#111110');
-    r.style.setProperty('--surface','#1C1C1A');
-    r.style.setProperty('--surface2','#252523');
-    r.style.setProperty('--surface3','#2E2E2B');
+    r.style.setProperty('--bg','#000000');
+    r.style.setProperty('--surface','#0A0A0A');
+    r.style.setProperty('--surface2','#111111');
+    r.style.setProperty('--surface3','#1A1A1A');
     r.style.setProperty('--text','#F2F1EE');
-    r.style.setProperty('--text2','#9B9B96');
-    r.style.setProperty('--text3','#5A5A56');
-    r.style.setProperty('--border','#2A2A27');
-    r.style.setProperty('--border2','#3A3A36');
+    r.style.setProperty('--text2','#888884');
+    r.style.setProperty('--text3','#444440');
+    r.style.setProperty('--border','#1E1E1C');
+    r.style.setProperty('--border2','#2A2A28');
   } else {
     r.style.setProperty('--bg','#F7F7F5');
     r.style.setProperty('--surface','#FFFFFF');
@@ -1206,7 +1206,7 @@ function toggleDarkMode(btn) {
     r.style.setProperty('--border','#E4E2DD');
     r.style.setProperty('--border2','#D0CEC9');
   }
-  toast(on ? 'Dark mode activado' : 'Light mode on');
+  toast(on ? 'Dark mode on' : 'Light mode on');
 }
 
 // ── INIT ──────────────────────────────────────────────────
