@@ -66,6 +66,8 @@ body{display:flex;flex-direction:column;align-items:center;overflow-x:hidden;}
 .prog-thumb{position:absolute;top:50%;width:13px;height:13px;background:var(--text);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;opacity:0;transition:opacity .1s;}
 .prog-wrap:hover .prog-thumb{opacity:1;}
 .prog-times{display:flex;justify-content:space-between;font-size:clamp(9px,2.5vw,11px);color:var(--text3);font-family:var(--mono);}
+  .viz-wrap{ width:100%; height:32px; overflow:hidden; }
+.viz-wrap canvas{ display:block; width:100%; height:32px; }
 
 /* Controls */
 .controls{display:flex;align-items:center;justify-content:center;gap:2vw;margin:3vw 0 2vw;}
@@ -333,7 +335,7 @@ select.eq-preset{font-size:clamp(10px,2.8vw,12px);color:var(--text2);border:1px 
         <button onclick="searchJamendo()"
           style="padding:7px 14px;background:var(--text);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font);cursor:pointer;font-weight:500;">Search</button>
       </div>
-      <div style="padding:0 14px 10px;display:flex;gap:6px;flex-wrap:wrap;" id="genreBar" style="display:none;">
+      <div id="genreBar" style="display:none;padding:0 14px 10px;gap:6px;flex-wrap:wrap;">
         <!-- genres injected by JS -->
       </div>
       <div class="panel-body" id="catalogBody" style="max-height:280px;">
@@ -1242,7 +1244,7 @@ function activateSource(btn, src) {
   } else if (src === 'catalog') {
     if (!isPro) { showProModal(); document.getElementById('src-folder').classList.add('active'); btn.classList.remove('active'); return; }
     document.getElementById('catalogPanel').style.display = 'flex';
-    loadGenreBar();
+    load();
     loadJamendoNew();
   } else if (src === 'archive') {
     if (!isPro) { showProModal(); document.getElementById('src-folder').classList.add('active'); btn.classList.remove('active'); return; }
@@ -1256,14 +1258,14 @@ function switchCatalogTab(tab) {
   document.querySelectorAll('[id^="ctab-"]').forEach(t => t.classList.remove('active'));
   document.getElementById('ctab-'+tab).classList.add('active');
   const searchRow = document.getElementById('catalogSearchRow');
-  const genreBar = document.getElementById('genreBar');
-  if (tab === 'search') { searchRow.style.display='flex'; genreBar.style.display='none'; searchJamendo(''); }
-  else if (tab === 'genres') { searchRow.style.display='none'; genreBar.style.display='flex'; loadGenreBar(); }
-  else if (tab === 'new') { searchRow.style.display='none'; genreBar.style.display='none'; loadJamendoNew(); }
+  const  = document.getElementById('');
+  if (tab === 'search') { searchRow.style.display='flex'; .style.display='none'; searchJamendo(''); }
+  else if (tab === 'genres') { searchRow.style.display='none'; .style.display='flex'; load(); }
+  else if (tab === 'new') { searchRow.style.display='none'; .style.display='none'; loadJamendoNew(); }
 }
 
-function loadGenreBar() {
-  const bar = document.getElementById('genreBar');
+function load() {
+  const bar = document.getElementById('');
   bar.style.display = 'flex';
   bar.innerHTML = GENRES.map(g =>
     `<button onclick="searchByGenre('${g}')"
