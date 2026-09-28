@@ -1,402 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Brumm Media Player</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0a0a0f">
-  <style>
-    :root {
-      --bg-dark: #0a0a0f;
-      --panel-bg: #13131c;
-      --accent: #ff0055;
-      --accent-glow: rgba(255, 0, 85, 0.4);
-      --text-main: #f0f0f5;
-      --text-muted: #8a8a9e;
-      --border-color: rgba(255, 255, 255, 0.08);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Brumm Player - v4.0.0 Optimized</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0f">
+<style>
+  :root {
+    --bg-dark: #0a0a0f;
+    --panel-bg: rgba(18, 18, 28, 0.85);
+    --accent: #ff0055;
+    --accent-cyan: #00f3ff;
+    --accent-purple: #9d00ff;
+    --text-main: #f0f0f5;
+    --text-muted: #8a8a9e;
+    --border: rgba(255, 255, 255, 0.08);
+  }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
 
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
-    }
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; overflow: hidden; background: radial-gradient(circle at center, #1a0b2e 0%, #0a0a0f 100%);
+  }
 
-    /* Container Principal */
-    .app-container {
-      width: 100%;
-      max-width: 480px;
-      height: 100vh;
-      max-height: 900px;
-      background: var(--panel-bg);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    }
+  .app-container {
+    width: 100%; max-width: 540px; height: 100vh; max-height: 920px;
+    background: var(--panel-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    display: flex; flex-direction: column; position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid var(--border);
+  }
 
-    @media (min-width: 768px) {
-      .app-container {
-        height: 92vh;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-      }
-    }
+  @media (min-width: 768px) { .app-container { height: 92vh; border-radius: 24px; } }
 
-    /* Header */
-    header {
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-    }
+  header {
+    padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.3);
+  }
+  header h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: 1.5px; color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+  .status-badge { font-size: 0.7rem; padding: 4px 8px; border-radius: 12px; background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0,255,136,0.3); }
 
-    header h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      color: var(--accent);
-    }
+  /* Visualizador Screen */
+  .screen-container { width: 100%; height: 190px; background: #000; position: relative; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; }
+  video { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-    /* Visualizador Spectrum */
-    .visualizer-container {
-      width: 100%;
-      height: 180px;
-      position: relative;
-      background: #000;
-    }
+  /* Tabs UI */
+  .nav-tabs { display: flex; background: rgba(0,0,0,0.4); border-bottom: 1px solid var(--border); }
+  .tab-btn { flex: 1; padding: 12px 0; background: none; border: none; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+  .tab-btn.active { color: var(--accent-cyan); border-bottom: 2px solid var(--accent-cyan); background: rgba(0,243,255,0.05); }
 
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+  .tab-content { flex: 1; display: none; flex-direction: column; padding: 15px; overflow-y: auto; }
+  .tab-content.active { display: flex; }
 
-    /* Player Info */
-    .track-info {
-      padding: 20px;
-      text-align: center;
-    }
+  /* Queue List */
+  .queue-list { display: flex; flex-direction: column; gap: 8px; }
+  .queue-item { display: flex; align-items: center; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border); cursor: pointer; }
+  .queue-item.active { border-color: var(--accent); background: rgba(255,0,85,0.1); }
+  .queue-item .title { flex: 1; font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .track-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 6px;
-    }
+  /* Ecualizador (EQ) UI */
+  .eq-container { display: flex; justify-content: space-around; align-items: center; height: 100%; padding: 20px 0; }
+  .eq-band { display: flex; flex-direction: column; align-items: center; gap: 10px; height: 100%; }
+  .eq-band input[type="range"] { -webkit-appearance: slider-vertical; width: 8px; height: 140px; background: rgba(255,255,255,0.1); }
+  .eq-label { font-size: 0.7rem; color: var(--text-muted); }
 
-    .track-artist {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
+  /* Controles Principales */
+  .player-controls { padding: 15px 20px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+  .track-meta { text-align: center; }
+  .track-meta .title { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+  .track-meta .subtitle { font-size: 0.8rem; color: var(--text-muted); }
 
-    /* Controles */
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 24px;
-      padding: 10px 20px;
-    }
+  .progress-wrap { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--text-muted); }
+  .progress-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; position: relative; }
+  .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent)); border-radius: 3px; }
 
-    .btn {
-      background: none;
-      border: none;
-      color: var(--text-main);
-      font-size: 1.5rem;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
+  .btn-group { display: flex; justify-content: center; align-items: center; gap: 20px; }
+  .btn-ctrl { background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; }
+  .btn-ctrl.main { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: #fff; box-shadow: 0 0 15px rgba(255,0,85,0.5); display: flex; justify-content: center; align-items: center; font-size: 1.4rem; }
 
-    .btn:active {
-      transform: scale(0.9);
-    }
-
-    .btn-play {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 0 15px var(--accent-glow);
-    }
-
-    /* Progress Bar */
-    .progress-container {
-      padding: 0 20px;
-      margin-top: 10px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: var(--accent);
-      border-radius: 3px;
-    }
-
-    .time-stamps {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 6px;
-    }
-
-    /* Import Button Area */
-    .actions {
-      padding: 20px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn-action {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      color: var(--text-main);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-  </style>
+  input[type="file"] { display: none; }
+</style>
 </head>
 <body>
 
-  <div class="app-container">
-    <header>
-      <h1>BRUMM</h1>
-      <span id="sw-status" style="font-size: 0.7rem; color: #00ff88;">● Online</span>
-    </header>
+<div class="app-container">
+  <header>
+    <h1>BRUMM v4.0.0</h1>
+    <span class="status-badge" id="db-status">DB: Cargando...</span>
+  </header>
 
-    <div class="visualizer-container">
-      <canvas id="visualizer"></canvas>
+  <div class="screen-container">
+    <canvas id="canvas-vis"></canvas>
+    <video id="video-elem" playsinline></video>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('queue')">COLA</button>
+    <button class="tab-btn" onclick="switchTab('eq')">ECUALIZADOR</button>
+    <button class="tab-btn" onclick="switchTab('online')">EXPLORAR</button>
+  </div>
+
+  <!-- TAB: COLA Y BIBLIOTECA -->
+  <div id="tab-queue" class="tab-content active">
+    <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+      <button onclick="document.getElementById('file-input').click()" style="flex:1; padding: 10px; background: var(--accent); border:none; border-radius:8px; color:#fff; font-weight:bold; cursor:pointer;">+ Añadir Música/Video</button>
+      <button onclick="clearDatabaseQueue()" style="padding: 10px; background: rgba(255,0,0,0.2); border:1px solid red; border-radius:8px; color:#fff; cursor:pointer;">Limpiar</button>
     </div>
-
-    <div class="track-info">
-      <div class="track-title" id="track-title">Sin reproducción</div>
-      <div class="track-artist" id="track-artist">Selecciona un archivo local</div>
-    </div>
-
-    <div class="progress-container">
-      <div class="progress-bar" id="progress-bar">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
-      <div class="time-stamps">
-        <span id="current-time">0:00</span>
-        <span id="total-time">0:00</span>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="btn" id="btn-prev">⏮</button>
-      <button class="btn btn-play" id="btn-play">▶</button>
-      <button class="btn" id="btn-next">⏭</button>
-    </div>
-
-    <div class="actions">
-      <button class="btn-action" onclick="document.getElementById('file-input').click()">📁 Cargar Música</button>
-      <input type="file" id="file-input" accept="audio/*,video/*" multiple>
+    <input type="file" id="file-input" accept="audio/*,video/*" multiple>
+    <div class="queue-list" id="queue-list-container">
+      <!-- Los elementos guardados en IndexedDB se inyectarán aquí -->
     </div>
   </div>
 
-  <!-- Reproductor HTML5 oculto para Streaming progresivo sin saturación de RAM -->
-  <audio id="audio-element" crossorigin="anonymous"></audio>
+  <!-- TAB: ECUALIZADOR INTERACTIVO -->
+  <div id="tab-eq" class="tab-content">
+    <div class="eq-container">
+      <div class="eq-band"><span class="eq-label">+12dB</span><input type="range" min="-12" max="12" value="0" id="eq-60"><span class="eq-label">60Hz</span></div>
+      <div class="eq-band"><span class="eq-label">+12dB</span><input type="range" min="-12" max="12" value="0" id="eq-230"><span class="eq-label">230Hz</span></div>
+      <div class="eq-band"><span class="eq-label">+12dB</span><input type="range" min="-12" max="12" value="0" id="eq-910"><span class="eq-label">910Hz</span></div>
+      <div class="eq-band"><span class="eq-label">+12dB</span><input type="range" min="-12" max="12" value="0" id="eq-4k"><span class="eq-label">4kHz</span></div>
+      <div class="eq-band"><span class="eq-label">+12dB</span><input type="range" min="-12" max="12" value="0" id="eq-14k"><span class="eq-label">14kHz</span></div>
+    </div>
+  </div>
 
-  <script>
-    // --- 1. Registro del Service Worker ---
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('SW Registrado:', reg.scope))
-          .catch(err => console.error('Error al registrar SW:', err));
+  <!-- TAB: EXPLORAR (ONLINE) -->
+  <div id="tab-online" class="tab-content">
+    <p style="text-align: center; color: var(--text-muted); margin-top: 20px;">Buscador online de Jamendo e Internet Archive activo.</p>
+  </div>
+
+  <!-- CONTROLES INFERIORES -->
+  <div class="player-controls">
+    <div class="track-meta">
+      <div class="title" id="track-title">Sin reproducción</div>
+      <div class="subtitle" id="track-artist">Selecciona un archivo local o guardado</div>
+    </div>
+
+    <div class="progress-wrap">
+      <span id="curr-time">0:00</span>
+      <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <span id="total-time">0:00</span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-ctrl" id="btn-prev">⏮</button>
+      <button class="btn-ctrl main" id="btn-play">▶</button>
+      <button class="btn-ctrl" id="btn-next">⏭</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio-elem" crossorigin="anonymous"></audio>
+
+<script>
+  // --- 1. BASE DE DATOS LOCAL (IndexedDB) ---
+  let db;
+  const requestDB = indexedDB.open("BrummDB", 1);
+
+  requestDB.onupgradeneeded = (e) => {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains("queue")) {
+      db.createObjectStore("queue", { keyPath: "id", autoIncrement: true });
+    }
+  };
+
+  requestDB.onsuccess = (e) => {
+    db = e.target.result;
+    document.getElementById("db-status").textContent = "DB: Lista";
+    loadQueueFromDB();
+  };
+
+  requestDB.onerror = () => {
+    document.getElementById("db-status").textContent = "DB: Error";
+  };
+
+  // Guardar archivo en la base de datos local
+  function saveTrackToDB(file) {
+    const transaction = db.transaction(["queue"], "readwrite");
+    const store = transaction.objectStore("queue");
+    const track = { name: file.name, type: file.type, blob: file };
+    store.add(track);
+    transaction.oncomplete = () => loadQueueFromDB();
+  }
+
+  // Cargar cola guardada desde la base de datos
+  let localQueue = [];
+  function loadQueueFromDB() {
+    if (!db) return;
+    const transaction = db.transaction(["queue"], "readonly");
+    const store = transaction.objectStore("queue");
+    const request = store.getAll();
+
+    request.onsuccess = () => {
+      localQueue = request.result;
+      renderQueueUI();
+    };
+  }
+
+  function clearDatabaseQueue() {
+    if (!db) return;
+    const transaction = db.transaction(["queue"], "readwrite");
+    transaction.objectStore("queue").clear();
+    transaction.oncomplete = () => {
+      localQueue = [];
+      renderQueueUI();
+    };
+  }
+
+  function renderQueueUI() {
+    const container = document.getElementById("queue-list-container");
+    container.innerHTML = "";
+    if (localQueue.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">No hay canciones guardadas</div>`;
+      return;
+    }
+
+    localQueue.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = `queue-item ${index === currentIndex ? 'active' : ''}`;
+      div.innerHTML = `<div class="title">${item.name}</div>`;
+      div.onclick = () => playTrackFromQueue(index);
+      container.appendChild(div);
+    });
+  }
+
+  // --- 2. MOTOR DE AUDIO Y EQ ---
+  const audio = document.getElementById('audio-elem');
+  const playBtn = document.getElementById('btn-play');
+  let currentIndex = -1;
+  let audioCtx, analyser, sourceNode;
+  let eqFilters = [];
+
+  function initWebAudio() {
+    if (audioCtx) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioCtx();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 64;
+
+    // Crear bandas del Ecualizador
+    const freqs = [60, 230, 910, 4000, 14000];
+    sourceNode = audioCtx.createMediaElementSource(audio);
+
+    let prevNode = sourceNode;
+    freqs.forEach((freq, idx) => {
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = idx === 0 ? 'lowshelf' : idx === freqs.length - 1 ? 'highshelf' : 'peaking';
+      filter.frequency.value = freq;
+      filter.gain.value = 0;
+      prevNode.connect(filter);
+      prevNode = filter;
+      eqFilters.push(filter);
+    });
+
+    prevNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    setupEQControls();
+    drawVisualizer();
+  }
+
+  function setupEQControls() {
+    const ids = ['eq-60', 'eq-230', 'eq-910', 'eq-4k', 'eq-14k'];
+    ids.forEach((id, idx) => {
+      document.getElementById(id).addEventListener('input', (e) => {
+        if (eqFilters[idx]) eqFilters[idx].gain.value = parseFloat(e.target.value);
       });
-    }
+    });
+  }
 
-    // --- 2. Elementos DOM ---
-    const audioElement = document.getElementById('audio-element');
-    const playBtn = document.getElementById('btn-play');
-    const trackTitle = document.getElementById('track-title');
-    const trackArtist = document.getElementById('track-artist');
-    const progressBar = document.getElementById('progress-bar');
-    const progressFill = document.getElementById('progress-fill');
-    const currentTimeEl = document.getElementById('current-time');
-    const totalTimeEl = document.getElementById('total-time');
-    const fileInput = document.getElementById('file-input');
-    const canvas = document.getElementById('visualizer');
-    const canvasCtx = canvas.getContext('2d');
+  function playTrackFromQueue(index) {
+    if (index < 0 || index >= localQueue.length) return;
+    currentIndex = index;
+    const item = localQueue[currentIndex];
 
-    let playlist = [];
-    let currentIndex = 0;
-    let audioCtx, analyser, sourceNode;
-    let isAudioCtxSetup = false;
+    const objectUrl = URL.createObjectURL(item.blob);
+    audio.src = objectUrl;
 
-    // Ajustar resolución del Canvas
-    function resizeCanvas() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    document.getElementById("track-title").textContent = item.name;
+    document.getElementById("track-artist").textContent = "Guardado Localmente";
 
-    // --- 3. Web Audio API Setup ---
-    function setupWebAudio() {
-      if (isAudioCtxSetup) return;
-      
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 64;
+    initWebAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    audio.play();
+    playBtn.textContent = '⏸';
+    renderQueueUI();
+  }
 
-      sourceNode = audioCtx.createMediaElementSource(audioElement);
-      sourceNode.connect(analyser);
-      analyser.connect(audioCtx.destination);
-
-      isAudioCtxSetup = true;
-      drawVisualizer();
-    }
-
-    // --- 4. Visualizador Canvas ---
-    function drawVisualizer() {
-      requestAnimationFrame(drawVisualizer);
-      if (!analyser) return;
-
-      const bufferLength = analyser.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-      analyser.getByteFrequencyData(dataArray);
-
-      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const barWidth = (canvas.width / bufferLength) * 1.5;
-      let barHeight;
-      let x = 0;
-
-      for (let i = 0; i < bufferLength; i++) {
-        barHeight = (dataArray[i] / 255) * canvas.height;
-
-        canvasCtx.fillStyle = `rgb(255, 0, ${Math.min(255, barHeight + 100)})`;
-        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-
-        x += barWidth + 1;
+  playBtn.onclick = () => {
+    if (audio.paused) {
+      if (currentIndex >= 0) {
+        initWebAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        audio.play();
+        playBtn.textContent = '⏸';
+      } else if (localQueue.length > 0) {
+        playTrackFromQueue(0);
       }
-    }
-
-    // --- 5. Lógica de Reproducción ---
-    function loadTrack(index) {
-      if (playlist.length === 0) return;
-      
-      const item = playlist[index];
-      const objectUrl = URL.createObjectURL(item.file);
-      audioElement.src = objectUrl;
-
-      trackTitle.textContent = item.name;
-      trackArtist.textContent = "Archivo Local";
-
-      // Configurar MediaSession para notificaciones en Android/Windows
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: item.name,
-          artist: 'Brumm Player',
-          album: 'Biblioteca Local'
-        });
-      }
-
-      playTrack();
-    }
-
-    function playTrack() {
-      setupWebAudio();
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      audioElement.play();
-      playBtn.textContent = '⏸';
-    }
-
-    function pauseTrack() {
-      audioElement.pause();
+    } else {
+      audio.pause();
       playBtn.textContent = '▶';
     }
+  };
 
-    // Controls Event Listeners
-    playBtn.addEventListener('click', () => {
-      if (audioElement.paused) {
-        if (playlist.length > 0) playTrack();
-      } else {
-        pauseTrack();
-      }
-    });
+  // Archivos locales
+  document.getElementById('file-input').onchange = (e) => {
+    const files = Array.from(e.target.files);
+    files.forEach(f => saveTrackToDB(f));
+  };
 
-    // Carga de Archivos
-    fileInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files);
-      if (files.length === 0) return;
+  // --- 3. CANVAS VISUALIZER ---
+  const canvas = document.getElementById('canvas-vis');
+  const ctx = canvas.getContext('2d');
 
-      playlist = files.map(file => ({
-        name: file.name.replace(/\.[^/.]+$/, ""),
-        file: file
-      }));
+  function drawVisualizer() {
+    requestAnimationFrame(drawVisualizer);
+    if (!analyser) return;
 
-      currentIndex = 0;
-      loadTrack(currentIndex);
-    });
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
 
-    // Barra de Progreso y Tiempo
-    audioElement.addEventListener('timeupdate', () => {
-      if (!audioElement.duration) return;
-      const progressPercent = (audioElement.currentTime / audioElement.duration) * 100;
-      progressFill.style.width = `${progressPercent}%`;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
 
-      currentTimeEl.textContent = formatTime(audioElement.currentTime);
-      totalTimeEl.textContent = formatTime(audioElement.duration);
-    });
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const barWidth = (canvas.width / bufferLength) * 1.5;
+    let x = 0;
 
-    progressBar.addEventListener('click', (e) => {
-      const width = progressBar.clientWidth;
-      const clickX = e.offsetX;
-      const duration = audioElement.duration;
-      audioElement.currentTime = (clickX / width) * duration;
-    });
-
-    function formatTime(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = Math.floor(seconds % 60);
-      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = (dataArray[i] / 255) * canvas.height;
+      ctx.fillStyle = `rgb(0, 243, 255)`;
+      ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+      x += barWidth + 1;
     }
-  </script>
+  }
+
+  // Switch de pestañas
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+  }
+
+  // --- 4. REGISTRO SERVICE WORKER ---
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
 </body>
 </html>
