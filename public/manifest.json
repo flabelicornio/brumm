@@ -1,18 +1,26 @@
 {
   "short_name": "Brumm",
-  "name": "Brumm Player",
-  "id": "/",
+  "name": "Brumm Media Player",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "display": "standalone",
+  "orientation": "any",
+  "description": "Reproductor de medios local e hiper-conectado para ChromeOS, Android y Desktop.",
+  "categories": ["music", "entertainment", "utilities"],
   "icons": [
     {
-      "src": "/icon-192.svg",
+      "src": "./icon-192.svg",
       "type": "image/svg+xml",
       "sizes": "192x192 512x512",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.svg",
+      "src": "./icon-512.svg",
       "type": "image/svg+xml",
-      "sizes": "192x192 512x512",
+      "sizes": "512x512",
       "purpose": "maskable"
     },
     {
@@ -21,12 +29,5 @@
       "sizes": "512x512",
       "purpose": "any"
     }
-  ],
-  "start_url": "/index.html",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
-  "display": "standalone",
-  "orientation": "any",
-  "description": "Reproductor multimedios avanzado de música y video local y en línea.",
-  "categories": ["music", "entertainment"]
+  ]
 }
