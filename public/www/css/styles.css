@@ -93,8 +93,8 @@ body {
 }
 
 .settings-btn {
-  width: 32px;
-  height: 32px;
+  width: 50px;
+  height: 50px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: none;
@@ -178,8 +178,8 @@ body {
 }
 
 .artwork {
-  width: 64px;
-  height: 64px;
+  width: 75px;
+  height: 75px;
   border-radius: 10px;
   flex-shrink: 0;
   position: relative;
@@ -316,7 +316,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 18px;
   margin: 12px 0;
 }
 
@@ -331,7 +331,7 @@ body {
   justify-content: center;
   border-radius: 8px;
   transition: background .12s;
-  font-size: 16px;
+  font-size: 20px;
   color: var(--text2);
   font-family: var(--font);
 }
@@ -346,8 +346,8 @@ body {
 }
 
 .play-btn {
-  width: 48px;
-  height: 48px;
+  width: 58px;
+  height: 58px;
   background: var(--text);
   color: #000;
   border: none;
@@ -356,7 +356,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 28px;
   transition: transform .1s, background .12s;
   flex-shrink: 0;
 }
