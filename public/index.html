@@ -10,7 +10,10 @@
   
   <!-- Imagen para redes sociales -->
   <meta property="og:image" content="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
-<link rel="manifest" href="/manifest.json">
+
+  <!-- Manifest dinámico data URI para evitar fallos si no existe manifest.json -->
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22Music%20Brumm%22%2C%22short_name%22%3A%22Brumm%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Findustriasplaneta.wordpress.com%2Fwp-content%2Fuploads%2F2026%2F09%2Fbrumm-i.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
@@ -792,7 +795,6 @@ async function loadTrack(idx) {
       audioBuffer = await AC.decodeAudioData(ab);
       t.duration = audioBuffer.duration;
       t.durationStr = fmtTime(audioBuffer.duration);
-      document.getElementById('timeDur').textContent = t.durationStr;
       renderPanel();
       saveLibraryToStorage();
       playFrom(0);
@@ -1180,11 +1182,14 @@ function esc(s) {
     .replace(/'/g,'&#039;'); 
 }
 
-// ── SERVICE WORKER ────────────────────────────────────────
+// ── SERVICE WORKER (MANEJO DE ERRORES SEGURO) ─────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .catch(e => console.warn('SW:', e));
+    navigator.serviceWorker.register('./sw.js')
+      .catch(e => {
+        // Captura el error si sw.js no existe localmente sin romper la app PWA
+        console.warn('Servidor sin archivo sw.js — corriendo en modo directo local:', e);
+      });
   });
 }
 
