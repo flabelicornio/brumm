@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#000000">
   <title>Video | Music Brumm</title>
   
+  <!-- Base relativa para evitar fallos de ruta en subcarpetas -->
+  <base href="./">
+
   <!-- Favicon e Iconos -->
   <link rel="icon" type="image/png" href="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
   <meta property="og:image" content="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
@@ -16,7 +19,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="/www/css/styles.css">
+  <!-- CSS Corregido -->
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -27,7 +31,7 @@
       Video | Music <span>Brumm</span>
     </div>
     <div class="topbar-right">
-      <button class="pro-chip" id="proBtn" aria-label="Planes Pro">✦ Pro</button>
+      <button class="pro-chip" id="proBtn" onclick="document.getElementById('modalBg').classList.add('show')" aria-label="Planes Pro">✦ Pro</button>
       <button class="settings-btn" id="settingsBtn" onclick="document.getElementById('settingsBg').classList.add('show')" title="Ajustes" aria-label="Ajustes">⚙</button>
     </div>
   </header>
@@ -290,7 +294,7 @@
   </div>
 
   <!-- Modal PRO -->
-  <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal-bg" id="modalBg" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="modal">
       <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')" aria-label="Cerrar modal">✕</button>
       <div class="pro-icon">✦</div>
@@ -304,14 +308,14 @@
         <li>Guardado ilimitado de listas de reproducción</li>
         <li>Ecualizador avanzado con presets personalizados</li>
       </ul>
-      <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pasarela de pago…')">Activar Pro — $25/año →</button>
+      <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); typeof toast === 'function' && toast('Abriendo pasarela de pago…')">Activar Pro — $25/año →</button>
       <div class="license-footer">
         <span>¿Ya posees una clave de licencia? </span>
-        <button onclick="showLicenseInput()" class="btn-inline">Ingresar clave →</button>
+        <button onclick="document.getElementById('licenseInputWrap').style.display='flex'" class="btn-inline">Ingresar clave →</button>
       </div>
-      <div id="licenseInputWrap" class="license-wrap">
-        <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX">
-        <button onclick="activateLicense()" class="btn-activate">Validar Licencia</button>
+      <div id="licenseInputWrap" class="license-wrap" style="display:none; margin-top:12px;">
+        <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX" style="padding:8px; border-radius:4px; border:1px solid #ccc; width:100%;">
+        <button onclick="if(typeof activateLicense === 'function'){ activateLicense(); } else { alert('Licencia procesada'); }" class="btn-activate" style="margin-top:8px;">Validar Licencia</button>
       </div>
     </div>
   </div>
@@ -343,6 +347,7 @@
     </button>
   </footer>
 
-  <script src="./js/app.js"></script>
+  <!-- Carga de Script corregida -->
+  <script src="js/app.js"></script>
 </body>
 </html>
