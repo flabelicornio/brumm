@@ -197,6 +197,22 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 </head>
 <body>
 
+  <!-- Banner de invitación a la App / APK -->
+<div id="apk-banner" style="background: #1e293b; color: #ffffff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; font-family: sans-serif; font-size: 14px; border-bottom: 2px solid #3b82f6;">
+  <div>
+    <strong>📱 Experiencia Móvil:</strong>
+    <span id="banner-text">Cargando opción móvil...</span>
+  </div>
+  <div style="display: flex; gap: 8px;">
+    <!-- Botón de acción dinámico -->
+    <a id="apk-download-btn" href="/www/" style="background: #3b82f6; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 12px;">
+      Abrir WebApp Móvil
+    </a>
+    <!-- Botón para cerrar el banner -->
+    <button onclick="document.getElementById('apk-banner').style.display='none'" style="background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 16px;">✕</button>
+  </div>
+</div>
+
 <div class="topbar">
   <div class="logo">
     <img src="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png" width="28" height="28" style="border-radius:7px;vertical-align:middle;">
@@ -1951,6 +1967,30 @@ document.addEventListener('click', e => {
     Brumm · indplaneta.com · v4.0.0
   </button>
 </div>
+<script>
+  // CONFIGURACIÓN DE TU APP
+  // Cambia esto a true cuando subas el archivo .apk a la carpeta public:
+  const apkDisponible = false; 
+  
+  // Ruta donde guardarás tu APK en el proyecto (ejemplo: public/app-brumm.apk)
+  const urlApk = "/app-brumm.apk"; 
 
+  // Ruta a tu carpeta www actual
+  const urlWebAppMovil = "/www/"; 
+
+  const bannerText = document.getElementById('banner-text');
+  const downloadBtn = document.getElementById('apk-download-btn');
+
+  if (apkDisponible) {
+    bannerText.innerText = "¡Descarga la App oficial para Android!";
+    downloadBtn.innerText = "Descargar APK";
+    downloadBtn.href = urlApk;
+  } else {
+    // Apunta a la carpeta /www/ que acaban de subir
+    bannerText.innerText = "Prueba la versión móvil interactiva.";
+    downloadBtn.innerText = "Abrir versión Móvil";
+    downloadBtn.href = urlWebAppMovil;
+  }
+</script>
 </body>
 </html>
