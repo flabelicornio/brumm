@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Video | Music Brumm</title>
+  
+  <!-- Favicon e Iconos -->
+  <link rel="icon" type="image/png" href="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
+  <meta property="og:image" content="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Tipografía -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="logo">
+      <img src="https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png" alt="Logo Brumm" width="28" height="28">
+      Video | Music <span>Brumm</span>
+    </div>
+    <div class="topbar-right">
+      <button class="pro-chip" id="proBtn" aria-label="Planes Pro">✦ Pro</button>
+      <button class="settings-btn" id="settingsBtn" onclick="document.getElementById('settingsBg').classList.add('show')" title="Ajustes" aria-label="Ajustes">⚙</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <!-- Seleccion de Fuentes -->
+    <nav class="source-bar" aria-label="Fuentes de reproducción">
+      <button class="src active" id="src-folder" onclick="activateSource(this,'folder')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Carpeta
+      </button>
+      <button class="src" id="src-usb" onclick="activateSource(this,'usb')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5" y="1.5" width="6" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M8 9.5V14M5.5 14h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="5" r=".8" fill="currentColor"/><circle cx="9" cy="7" r=".8" fill="currentColor"/></svg>
+        USB / SD
+      </button>
+      <button class="src" id="src-catalog" onclick="activateSource(this,'catalog')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M6 8l1.5 1.5L10 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Música ✦
+      </button>
+      <button class="src" id="src-archive" onclick="activateSource(this,'archive')">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="5" width="12" height="8" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M6 9h4M8 7v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Video ✦
+      </button>
+    </nav>
+
+    <!-- Reproductor Principal -->
+    <section class="nowplaying" aria-label="Reproductor principal">
+      <div class="np-top">
+        <div class="artwork" id="artworkWrap"><canvas id="artCanvas" width="64" height="64"></canvas></div>
+        <div class="np-info">
+          <div class="np-title" id="npTitle">Sin reproducción</div>
+          <div class="np-artist" id="npArtist">Abre audio o video para comenzar</div>
+          <div class="np-format" id="npFormat">—</div>
+        </div>
+        <div class="np-actions">
+          <button class="icon-btn" id="heartBtn" onclick="toggleHeart()" title="Favorito" aria-label="Añadir a Favoritos">♡</button>
+          <button class="icon-btn" id="lyricsBtn" onclick="toggleLyrics()" title="Letra" aria-label="Ver Letra">♩</button>
+          <button class="icon-btn" id="queueBtn" onclick="showTab('queue')" title="Cola" aria-label="Ver Cola">≡</button>
+        </div>
+      </div>
+
+      <!-- Contenedor de Video -->
+      <div class="video-wrap" id="videoWrap">
+        <video id="videoEl" preload="metadata" playsinline
+          onended="nextTrack()"
+          ontimeupdate="videoTick()"
+          onloadedmetadata="videoReady()"></video>
+        <div class="video-badge" id="videoBadge">VIDEO</div>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Pantalla completa" aria-label="Pantalla Completa">⛶</button>
+      </div>
+
+      <!-- Visualizador -->
+      <div class="viz-wrap"><canvas id="vizCanvas"></canvas></div>
+
+      <!-- Barra de Progreso -->
+      <div class="prog-wrap" id="progWrap">
+        <div class="prog-fill" id="progFill"></div>
+        <div class="prog-thumb" id="progThumb"></div>
+      </div>
+      <div class="prog-times"><span id="timeCur">0:00</span><span id="timeDur">0:00</span></div>
+
+      <!-- Controles de Reproducción -->
+      <div class="controls">
+        <button class="ctrl" id="shuffleBtn" onclick="toggleShuffle()" title="Aleatorio" aria-label="Modo Aleatorio">⇄</button>
+        <button class="ctrl" onclick="prevTrack()" title="Anterior" aria-label="Pista Anterior">⏮</button>
+        <button class="play-btn" id="playBtn" onclick="togglePlay()" aria-label="Reproducir o Pausar">▶</button>
+        <button class="ctrl" onclick="nextTrack()" title="Siguiente" aria-label="Pista Siguiente">⏭</button>
+        <button class="ctrl" id="repeatBtn" onclick="cycleRepeat()" title="Repetir" aria-label="Modo Repetición">↻</button>
+      </div>
+
+      <!-- Control de Volumen -->
+      <div class="vol-row">
+        <span class="vol-icon" aria-hidden="true">🔈</span>
+        <input type="range" class="vol" id="volSlider" min="0" max="100" value="80" oninput="setVolume(this)" aria-label="Volumen">
+        <span class="vol-icon" aria-hidden="true">🔊</span>
+      </div>
+    </section>
+
+    <!-- Panel de Letras -->
+    <section class="lyrics-panel" id="lyricsPanel">
+      <div class="lyrics-head">
+        <span class="lyrics-title" id="lyricsMeta">Letra</span>
+        <button onclick="toggleLyrics()" class="close-subpanel" aria-label="Cerrar panel de letra">✕</button>
+      </div>
+      <div class="lyrics-body" id="lyricsBody">
+        <div class="lyrics-empty">Reproduce una pista para buscar la letra disponible</div>
+      </div>
+    </section>
+
+    <!-- Panel de Listas / Biblioteca -->
+    <section class="panel">
+      <div class="tabs" role="tablist">
+        <button class="tab active" id="tab-queue" onclick="showTab('queue')" role="tab">Cola</button>
+        <button class="tab" id="tab-library" onclick="showTab('library')" role="tab">Biblioteca</button>
+        <button class="tab" id="tab-folders" onclick="showTab('folders')" role="tab">Carpetas</button>
+      </div>
+      <div class="panel-body" id="panelBody">
+        <div class="empty-state"><strong>Lista vacía</strong>Añade una Carpeta, USB o SD</div>
+      </div>
+    </section>
+
+    <!-- Ecualizador -->
+    <section class="eq-panel">
+      <div class="eq-head">
+        <span class="eq-title">Ecualizador</span>
+        <div class="eq-right">
+          <button class="eq-toggle on" id="eqToggle" onclick="toggleEQ()">ON</button>
+          <select class="eq-preset" id="eqPreset" onchange="applyPreset(this.value)" aria-label="Presets de Ecualizador">
+            <option value="flat">Plano</option>
+            <option value="bass">Refuerzo de graves</option>
+            <option value="vocal">Voz</option>
+            <option value="treble">Agudos</option>
+            <option value="classical">Clásica</option>
+            <option value="lounge">Lounge</option>
+          </select>
+        </div>
+      </div>
+      <div class="eq-bands" id="eqBands"></div>
+    </section>
+
+    <!-- Botón para Cargar Archivos Localmente -->
+    <button class="open-btn" onclick="openFolder()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 4.5A1.5 1.5 0 013.5 3H6l1.5 2H13a1.5 1.5 0 011.5 1.5V11A1.5 1.5 0 0113 12.5H3A1.5 1.5 0 011.5 11V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Añadir Carpeta / USB / SD
+    </button>
+
+    <!-- Catálogo Jamendo -->
+    <section id="catalogPanel" class="subpanel-container">
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab active" id="ctab-search" onclick="switchCatalogTab('search')">Buscar</button>
+          <button class="tab" id="ctab-genres" onclick="switchCatalogTab('genres')">Género</button>
+          <button class="tab" id="ctab-new" onclick="switchCatalogTab('new')">Novedades</button>
+        </div>
+        <div class="search-row" id="catalogSearchRow">
+          <input type="text" id="catalogSearch" placeholder="Buscar artista o canción…" onkeydown="if(event.key==='Enter')searchJamendo()">
+          <select id="jamendoPageSize" onchange="searchJamendo()">
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <button class="btn-action" onclick="searchJamendo()">Buscar</button>
+        </div>
+        <div id="genreBar" class="genre-bar"></div>
+        <div class="panel-body" id="catalogBody">
+          <div class="empty-state"><strong>Catálogo Jamendo</strong>Más de 500,000 pistas. Busca o elige un género.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Catálogo Archive.org -->
+    <section id="archivePanel" class="subpanel-container">
+      <div class="panel">
+        <div class="tabs">
+          <button class="tab active" id="atab-cats" onclick="switchArchiveTab('cats')">Categorías</button>
+          <button class="tab" id="atab-search" onclick="switchArchiveTab('search')">Buscar</button>
+        </div>
+        <div id="archiveCatGrid" class="archive-cat-grid"></div>
+        <div class="search-row" id="archiveSearchRow">
+          <input type="text" id="archiveSearch" placeholder="Título, director, año…" onkeydown="if(event.key==='Enter')searchArchive()">
+          <select id="archivePageSize">
+            <option value="30">30</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <button class="btn-action" onclick="searchArchive()">Buscar</button>
+        </div>
+        <div class="panel-body" id="archiveBody" style="display:none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Notificaciones Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Modal de Ajustes -->
+  <div class="modal-bg" id="settingsBg" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="settings-modal">
+      <button class="modal-close" onclick="document.getElementById('settingsBg').classList.remove('show')" aria-label="Cerrar ajustes">✕</button>
+      <h2 class="modal-title">Ajustes</h2>
+
+      <div class="settings-section">
+        <div class="settings-label">Reproducción</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Continuar al abrir</div>
+            <div class="settings-row-sub">Reanuda la última pista al iniciar la aplicación.</div>
+          </div>
+          <button class="toggle-sw on" id="sw-resume" onclick="toggleSetting(this,'resume')" aria-label="Reanudar reproducción"></button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Crossfade</div>
+            <div class="settings-row-sub">Mezcla suave entre pistas (2s)</div>
+          </div>
+          <button class="toggle-sw" id="sw-crossfade" onclick="toggleSetting(this,'crossfade')" aria-label="Crossfade"></button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Normalizar volumen</div>
+            <div class="settings-row-sub">Nivela el volumen entre archivos de audio</div>
+          </div>
+          <button class="toggle-sw" id="sw-normalize" onclick="toggleSetting(this,'normalize')" aria-label="Normalizar volumen"></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Interfaz</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Modo oscuro</div>
+            <div class="settings-row-sub">Alternar tema claro u oscuro</div>
+          </div>
+          <button class="toggle-sw on" id="sw-dark" onclick="toggleDarkMode(this)" aria-label="Modo Oscuro"></button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Visualizador</div>
+            <div class="settings-row-sub">Muestra barras de frecuencia dinámicas</div>
+          </div>
+          <button class="toggle-sw on" id="sw-viz" onclick="toggleSetting(this,'viz')" aria-label="Visualizador"></button>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Licencia</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label" id="settingsProStatus">Versión Gratuita</div>
+            <div class="settings-row-sub">Video | Music Brumm Pro — $25/año</div>
+          </div>
+          <button class="btn-secondary" onclick="document.getElementById('settingsBg').classList.remove('show');document.getElementById('modalBg').classList.add('show')">
+            Activar
+          </button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Versión</div></div>
+          <div class="version-badge">4.0.0</div>
+        </div>
+        <div class="settings-row clickable" onclick="checkForUpdates()">
+          <div>
+            <div class="settings-row-label">Buscar actualizaciones</div>
+            <div class="settings-row-sub">Comprueba la versión más reciente.</div>
+          </div>
+          <span id="updateStatus">→</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Biblioteca</div>
+        <div class="settings-row clickable" onclick="clearLibrary()">
+          <div>
+            <div class="settings-row-label text-danger">Limpiar biblioteca</div>
+            <div class="settings-row-sub">Elimina todos los medios cargados</div>
+          </div>
+          <span>→</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal PRO -->
+  <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')" aria-label="Cerrar modal">✕</button>
+      <div class="pro-icon">✦</div>
+      <h2>Video | Music Brumm Pro</h2>
+      <div class="pro-sub">Suscripción anual. Cancela cuando quieras.</div>
+      <div class="price">$25 <span>/ año</span></div>
+      <ul>
+        <li>Más de 500,000 pistas disponibles</li>
+        <li>Búsqueda avanzada por artista, título y género</li>
+        <li>Catálogo de dominio público e independientes</li>
+        <li>Guardado ilimitado de listas de reproducción</li>
+        <li>Ecualizador avanzado con presets personalizados</li>
+      </ul>
+      <button class="modal-cta" onclick="window.open('https://technologycorporation.lemonsqueezy.com/checkout/buy/a8cab50e-af1d-4846-803c-300390d19ab1','_blank'); toast('Abriendo pasarela de pago…')">Activar Pro — $25/año →</button>
+      <div class="license-footer">
+        <span>¿Ya posees una clave de licencia? </span>
+        <button onclick="showLicenseInput()" class="btn-inline">Ingresar clave →</button>
+      </div>
+      <div id="licenseInputWrap" class="license-wrap">
+        <input type="text" id="licenseKey" placeholder="XXXX-XXXX-XXXX-XXXX">
+        <button onclick="activateLicense()" class="btn-activate">Validar Licencia</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup Acerca De -->
+  <div id="aboutPopup" class="about-popup">
+    <div class="about-title">Brumm — Reproductor Multimedia</div>
+    <div class="about-desc">
+      Reproductor local y en streaming sin dependencias externas.<br><br>
+      Contacto o soporte: <a href="mailto:info@indplaneta.com">info@indplaneta.com</a>
+    </div>
+    <div class="about-sec-title">AUDIO</div>
+    <div class="about-code">MP3 · FLAC · AAC · M4A · OGG · WAV · OPUS · WMA</div>
+    <div class="about-sec-title">VIDEO</div>
+    <div class="about-code">MP4 · WebM · MKV · MOV · AVI · M4V · OGV · 3GP</div>
+    <div class="about-note">
+      La compatibilidad depende de los códecs de tu navegador. MP3, AAC, FLAC, WAV, MP4 y WebM son totalmente compatibles.
+    </div>
+    <div class="about-footer-row">
+      <span>Propiedad de indplaneta.com</span>
+      <a href="https://github.com/flabelicornio/brumm#readme" target="_blank" rel="noopener">README →</a>
+    </div>
+  </div>
+
+  <!-- Pie de Página -->
+  <footer class="about-footer">
+    <button id="aboutBtn" onclick="toggleAbout()">
+      Brumm · indplaneta.com · v4.0.0
+    </button>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
