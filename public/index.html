@@ -474,6 +474,98 @@ select.eq-preset{font-size:11px;color:var(--text2);border:1px solid var(--border
 </div>
 
 <script>
+// ── PERSISTENCIA: INDEXEDDB Y LOCALSTORAGE ────────────────
+const DB_NAME = 'BrummMediaDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'tracks';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveLibraryToStorage() {
+  try {
+    const serializableLib = library.map(t => ({
+      name: t.name,
+      artist: t.artist,
+      album: t.album,
+      duration: t.duration,
+      durationStr: t.durationStr,
+      format: t.format,
+      isVideo: t.isVideo
+    }));
+    localStorage.setItem('brumm_library_meta', JSON.stringify(serializableLib));
+    localStorage.setItem('brumm_folders', JSON.stringify(folders));
+    localStorage.setItem('brumm_folder_map', JSON.stringify(folderMap));
+
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    await store.clear();
+
+    for (let i = 0; i < library.length; i++) {
+      if (library[i].file) {
+        store.add({ id: i, file: library[i].file });
+      }
+    }
+  } catch (e) {
+    console.warn('Error guardando en almacenamiento persistente', e);
+  }
+}
+
+async function loadLibraryFromStorage() {
+  try {
+    const metaStr = localStorage.getItem('brumm_library_meta');
+    const foldersStr = localStorage.getItem('brumm_folders');
+    const mapStr = localStorage.getItem('brumm_folder_map');
+
+    if (!metaStr) return;
+
+    const meta = JSON.parse(metaStr);
+    folders = foldersStr ? JSON.parse(foldersStr) : [];
+    folderMap = mapStr ? JSON.parse(mapStr) : [];
+
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+
+    const filesMap = {};
+    await new Promise((resolve) => {
+      const req = store.openCursor();
+      req.onsuccess = e => {
+        const cursor = e.target.result;
+        if (cursor) {
+          filesMap[cursor.key] = cursor.value.file;
+          cursor.continue();
+        } else {
+          resolve();
+        }
+      };
+      req.onerror = () => resolve();
+    });
+
+    library = meta.map((t, i) => ({
+      ...t,
+      file: filesMap[i] || null
+    }));
+
+    queue = library.map((_, i) => i);
+    renderPanel();
+  } catch (e) {
+    console.warn('Error cargando biblioteca almacenada', e);
+  }
+}
+
 // ── AUDIO ENGINE ──────────────────────────────────────────
 const AC = new (window.AudioContext || window.webkitAudioContext)();
 let gainNode = AC.createGain();
@@ -590,6 +682,7 @@ async function openFolder() {
     queue = library.map((_,i)=>i);
     folders.push(dir.name);
     renderPanel();
+    saveLibraryToStorage();
     toast(`${newTracks.length} pistas cargadas`);
     if (library.length === newTracks.length) loadTrack(0);
   } catch(e) {
@@ -656,6 +749,10 @@ async function loadTrack(idx) {
   pausedAt = 0;
   const t = library[queue[curIdx]];
   if (!t) return;
+  if (!t.file) {
+    toast('El archivo local ya no se encuentra disponible.');
+    return;
+  }
   
   updateNPDisplay(t);
   if (!t.isVideo) drawArt(queue[curIdx]);
@@ -697,6 +794,7 @@ async function loadTrack(idx) {
       t.durationStr = fmtTime(audioBuffer.duration);
       document.getElementById('timeDur').textContent = t.durationStr;
       renderPanel();
+      saveLibraryToStorage();
       playFrom(0);
       if (lyricsVisible) fetchLyrics(t.artist, t.name);
     } catch(e) {
@@ -1105,6 +1203,7 @@ function dragDrop(e, qi) {
   else if (dragSrc > curIdx && qi <= curIdx) curIdx++;
   dragSrc = null;
   renderQueue();
+  saveLibraryToStorage();
 }
 
 function removeFromQueue(qi) {
@@ -1112,6 +1211,7 @@ function removeFromQueue(qi) {
   queue.splice(qi, 1);
   if (curIdx >= queue.length) curIdx = Math.max(0, queue.length - 1);
   renderQueue();
+  saveLibraryToStorage();
   toast('Track removed from queue');
 }
 
@@ -1123,10 +1223,11 @@ function removeFolder(fi) {
   queue = library.map((_,i) => i);
   curIdx = 0;
   renderPanel();
+  saveLibraryToStorage();
   toast('Source removed');
 }
 
-function clearLibrary() {
+async function clearLibrary() {
   if (!confirm('¿Limpiar toda la biblioteca?')) return;
   library = []; queue = []; folderMap = []; folders = []; curIdx = 0;
   if (isPlaying) pausePlayback();
@@ -1134,6 +1235,16 @@ function clearLibrary() {
   document.getElementById('npTitle').textContent = 'No track';
   document.getElementById('npArtist').textContent = 'Abre una carpeta para comenzar';
   document.getElementById('npFormat').textContent = '—';
+  
+  localStorage.removeItem('brumm_library_meta');
+  localStorage.removeItem('brumm_folders');
+  localStorage.removeItem('brumm_folder_map');
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    await tx.objectStore(STORE_NAME).clear();
+  } catch(e) {}
+
   renderPanel();
   document.getElementById('settingsBg').classList.remove('show');
   toast('Library cleared');
@@ -1185,8 +1296,8 @@ applyTheme(localStorage.getItem('brumm_theme') || 'dark');
 // ── INIT ──────────────────────────────────────────────────
 buildEQUI();
 drawArt(0);
-renderPanel();
 checkProStatus();
+loadLibraryFromStorage();
 
 // ── PRO / LICENSE ─────────────────────────────────────────
 const JAMENDO_ID = 'a1eb6b2d';
