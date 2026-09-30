@@ -994,7 +994,7 @@ function buildEQUI() {
   c.innerHTML = EQ_BANDS.map((b,i) => `
     <div class="eq-band">
       <div class="eq-val" id="eqv${i}">0</div>
-      <input type="range" min="-12" max="12" value="0" step="1"
+      <input type="range" min="-24" max="24" value="0" step="1"
         oninput="setEQBand(${i},+this.value)"
         id="eqs${i}" title="${b.f}Hz">
       <div class="eq-label">${b.f<1000?b.f:(b.f/1000)+'k'}</div>
