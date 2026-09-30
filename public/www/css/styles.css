@@ -353,12 +353,17 @@ body {
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 38px;
+  font-size: 26px; /* Ajustado para mejor proporción geométrica */
+  line-height: 1; /* Elimina desplazamientos por caja de texto */
+  text-align: center;
+  padding: 0;
+  padding-left: 3px; /* Pequeño compensador visual si usas el carácter ▶ */
   transition: transform .1s, background .12s;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .play-btn:active {
