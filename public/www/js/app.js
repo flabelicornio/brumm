@@ -72,6 +72,11 @@ function playFrom(offset) {
   updateMediaSessionState(true);
   resumeViz();
   if (typeof startLRCSync === 'function' && lyricsMode === 'lrc') startLRCSync();
+
+  if (library[queue[curIdx]]) {
+    const t = library[queue[curIdx]];
+    updateMediaSession(t.name, t.artist, t.album || 'Brumm', null);
+  }
 }
 
 function pausePlayback() {
@@ -257,31 +262,37 @@ function updateNPDisplay(t) {
 }
 
 // ── MEDIA SESSION ─────────────────────────────────────────
+// ── MEDIA SESSION ─────────────────────────────────────────
 function updateMediaSession(title, artist, album, artworkUrl) {
   if (!('mediaSession' in navigator)) return;
+  
   navigator.mediaSession.metadata = new MediaMetadata({
-    title,
-    artist,
-    album,
+    title: title || 'Brumm Player',
+    artist: artist || 'Reproductor local',
+    album: album || 'Brumm',
     artwork: artworkUrl
       ? [{ src: artworkUrl, sizes: '512x512', type: 'image/jpeg' }]
       : [{ src: 'https://industriasplaneta.wordpress.com/wp-content/uploads/2026/09/brumm-i.png', sizes: '512x512', type: 'image/png' }]
   });
+
+  // Conectar con los botones físicos/pantalla de bloqueo
   navigator.mediaSession.setActionHandler('play', () => { if (!isPlaying) togglePlay(); });
   navigator.mediaSession.setActionHandler('pause', () => { if (isPlaying) pausePlayback(); });
   navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
   navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+  
+  // Soporte para adelantar/atrasar tiempo desde la barra del sistema
   navigator.mediaSession.setActionHandler('seekto', e => {
+    if (videoMode) {
+      const vid = document.getElementById('videoEl');
+      if (vid.duration) vid.currentTime = e.seekTime;
+      return;
+    }
     if (!audioBuffer) return;
     pausePlayback();
     pausedAt = e.seekTime;
     playFrom(e.seekTime);
   });
-}
-
-function updateMediaSessionState(playing) {
-  if (!('mediaSession' in navigator)) return;
-  navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
 }
 
 // ── CONTROLES Y NAVEGACIÓN ────────────────────────────────
@@ -1321,3 +1332,26 @@ document.addEventListener('click', e => {
     popup.classList.remove('show');
   }
 });
+
+// --- FUNCIONALIDAD PARA PANTALLA DE BLOQUEO Y NOTIFICACIONES ---
+function activarControlesNotificacion(titulo, artista) {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: titulo || 'Brumm Player',
+      artist: artista || 'Reproductor de Audio/Video',
+      album: 'Brumm',
+      artwork: [
+        { src: 'assets/icon.png', sizes: '96x96', type: 'image/png' },
+        { src: 'assets/icon.png', sizes: '512x512', type: 'image/png' }
+      ]
+    });
+
+    // Escuchar cuando presionas botones en la pantalla de bloqueo o audífonos
+    const elementoAudioVideo = document.querySelector('audio') || document.querySelector('video');
+    
+    if (elementoAudioVideo) {
+      navigator.mediaSession.setActionHandler('play', () => elementoAudioVideo.play());
+      navigator.mediaSession.setActionHandler('pause', () => elementoAudioVideo.pause());
+    }
+  }
+}
