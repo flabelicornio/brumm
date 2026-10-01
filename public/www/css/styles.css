@@ -1033,7 +1033,7 @@ select.eq-preset {
 }
 
 .license-footer {
-  margin-top: 12px;
+  margin-top: 16px;
   text-align: center;
   font-size: 11px;
   color: var(--text3);
@@ -1044,40 +1044,58 @@ select.eq-preset {
   color: var(--pro);
   background: none;
   border: none;
-  cursor: pointer;
+cursor: pointer;
   font-family: var(--font);
+  text-decoration: underline;
+  margin-top: 6px;
 }
 
 .license-wrap {
-  display: none;
-  margin-top: 10px;
-  gap: 6px;
+  display: none; /* Se activa mediante JS cambiando a flex */
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.license-wrap.show {
+  display: flex !important;
 }
 
 .license-wrap input {
-  flex: 1;
-  padding: 8px 10px;
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-family: var(--mono);
   outline: none;
-  width: 100%;
-  margin-bottom: 6px;
-  background: var(--surface);
+  background: var(--surface2);
   color: var(--text);
+  box-sizing: border-box;
+}
+
+.license-wrap input:focus {
+  border-color: var(--pro);
 }
 
 .btn-activate {
   width: 100%;
-  padding: 8px 12px;
+  padding: 10px 12px;
   background: var(--pro);
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   font-family: var(--font);
+  transition: opacity 0.15s;
+}
+
+.btn-activate:hover {
+  opacity: 0.9;
 }
 
 /* Modales de Ajustes */
